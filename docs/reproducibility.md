@@ -35,10 +35,10 @@ order. A successful run must:
 8. produce finite raw Degree-5 predictions with no clipping;
 9. confirm that evaluation does not modify the saved checkpoint.
 
-The original audited run used Python 3.10.20, PyTorch 2.5.1 with CUDA 12.1,
-and an NVIDIA GeForce RTX 4080 Laptop GPU. Its local training time was about
-1,699 seconds. Runtime is reported only as a local computational record, not
-as a hardware-fair timing comparison with NN4MGF.
+The audited reference run included in this repository used Python 3.10.20,
+PyTorch 2.5.1 with CUDA 12.1, and an NVIDIA GeForce RTX 4080 Laptop GPU. Its
+local training time was 1,738.53 seconds. Runtime is reported only as a local
+computational record, not as a hardware-fair timing comparison with NN4MGF.
 
 ## Why both stages are needed
 
@@ -47,4 +47,3 @@ evaluation. A fresh run proves that a user can reproduce the full protocol
 from an uninitialized model. GPU kernels and software versions can prevent
 bitwise-identical retraining, so a different new checkpoint hash alone is not
 a failure.
-
