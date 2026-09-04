@@ -8,8 +8,8 @@ audit and reproduction checks.
 
 ## Current scope
 
-The first audited experiment is the two-dimensional skew-symmetric
-product-form benchmark:
+The current audited release contains two two-dimensional benchmarks. The
+skew-symmetric product-form experiment uses:
 
 - coordinate-shared holomorphic Cauchy architecture;
 - 15,236 trainable real scalar degrees of freedom;
@@ -20,19 +20,25 @@ product-form benchmark:
 - raw predictions with no clipping;
 - no ground-truth tails in training or endpoint selection.
 
-The Harrison, 20D, 30D, and 50D experiments will be added only after their
-public notebooks and artifacts pass the same checks.
+The Harrison experiment uses the same seed, endpoint, sampled-constraint
+budget, and 15,236-real-DOF budget. It adds a centered full-input Holomorphic
+Cauchy branch and a nonseparability audit for the non-product benchmark.
+
+The 20D, 30D, and 50D experiments will be added only after their public
+notebooks and artifacts pass the same checks.
 
 ## Repository layout
 
 ```text
 notebooks/
   d2_skew_symmetric_product_form.ipynb
+  d2_harrison_nonproduct_global_cauchy.ipynb
 docs/
   reproducibility.md
   validation_checklist.md
 results/
   d2_skew_symmetric_product_form/
+  d2_harrison_nonproduct_global_cauchy/
 ```
 
 The notebook is deliberately self-contained so that a reviewer can inspect
@@ -49,8 +55,8 @@ conda activate hcn-rbm
 jupyter lab
 ```
 
-Open `notebooks/d2_skew_symmetric_product_form.ipynb` and choose one mode in
-the configuration cell:
+Open either notebook under `notebooks/` and choose one mode in the
+configuration cell:
 
 - `RUN_MODE = "smoke"`: two optimizer steps; this is the safe default.
 - `RUN_MODE = "train"`: the fixed 15,000-step paper protocol, followed by
@@ -79,6 +85,12 @@ hash and pointwise reference values are kept out of the training path and are
 used only for post-run auditing. The complete curated artifact set is in
 [`results/d2_skew_symmetric_product_form/`](results/d2_skew_symmetric_product_form/).
 
+The Harrison fixed-endpoint run attains a Degree-5 MRE of **1.422%** on
+(t=1{:}5), compared with **6.684%** for the published NN4MGF values, with no
+invalid raw prediction. Its full-input interaction residual remains nonzero
+after training. The curated artifacts are in
+[`results/d2_harrison_nonproduct_global_cauchy/`](results/d2_harrison_nonproduct_global_cauchy/).
+
 Fresh training runs on a different PyTorch, CUDA, driver, or GPU stack need
 not be bitwise identical. Acceptance is based on the frozen protocol,
 successful numerical audits, absence of invalid predictions, and comparable
@@ -94,7 +106,8 @@ for the release gate.
 The published NN4MGF comparison values are traced to commit
 `1956666902281f6ce4558ca82d8d15fa038f06fb` of
 [`zhangz73/NN4MGF`](https://github.com/zhangz73/NN4MGF), specifically
-`Plots/d=2/skewed_symmetry/tables.txt`.
+`Plots/d=2/skewed_symmetry/tables.txt` and
+`Plots/d=2/harrison/tables.txt`.
 
 ## Status
 
