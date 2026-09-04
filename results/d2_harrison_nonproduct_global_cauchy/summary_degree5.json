@@ -1,0 +1,19 @@
+{
+  "experiment": "d2_harrison_nonproduct_global_cauchy",
+  "seed": 12345,
+  "fixed_endpoint": 15000,
+  "talbot_degree": 5,
+  "mre_1_5": 0.014215857027256423,
+  "invalid_count": 0,
+  "official_nn4mgf_mre_1_5": 0.06683852105561139,
+  "exact_transform_talbot_floor_status": "not_available",
+  "exact_transform_talbot_floor_reason": "The audited Harrison sources provide a density/tail integral but no reliable closed-form exact joint transform; no inversion floor is fabricated.",
+  "learned_tail_transform_zero_limit": 1.253085659519308,
+  "nonseparability_interaction_residual_abs": 0.04787112386398878,
+  "nonseparability_audit_passed": true,
+  "raw_predictions": true,
+  "prediction_clipping": false,
+  "evaluation_wall_clock_seconds": 0.31009269994683564,
+  "checkpoint_sha256": "26a2c69fd797662ec1cb44c0aea200be25942b6dc5ac518d06bf2620051aef54",
+  "checkpoint_hash_unchanged_after_evaluation": true
+}

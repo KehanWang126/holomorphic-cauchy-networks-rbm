@@ -1,0 +1,12 @@
+{
+  "training_wall_clock_seconds": 2109.6046591999475,
+  "training_updates": 15000,
+  "sampled_constraints": {
+    "bar": 51240000,
+    "boundary": 6405000,
+    "mono": 6405000,
+    "total": 64050000
+  },
+  "peak_gpu_allocated_bytes": 265686016,
+  "peak_gpu_reserved_bytes": 360710144
+}

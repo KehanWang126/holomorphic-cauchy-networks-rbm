@@ -1,0 +1,9 @@
+{
+  "method": "NN4MGF",
+  "paper": "Deep Learning Method for Stationary Distribution of Reflected Brownian Motion",
+  "repository": "https://github.com/zhangz73/NN4MGF",
+  "commit": "1956666902281f6ce4558ca82d8d15fa038f06fb",
+  "benchmark_script": "test_2d_harrison.py",
+  "public_table": "Plots/d=2/harrison/tables.txt",
+  "benchmark_script_sha256": "77ec5d19a3c7ae40b51bb55db6c659b63a91e4eb29ab151faad1c2e905f74648"
+}

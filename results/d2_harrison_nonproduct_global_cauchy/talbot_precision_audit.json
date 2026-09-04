@@ -1,0 +1,15 @@
+{
+  "model_parameter_dtypes": [
+    "torch.complex128",
+    "torch.float64"
+  ],
+  "talbot_node_tensor_dtype": "torch.complex128",
+  "model_log_output_dtype": "torch.complex128",
+  "python_output_component_types": [
+    "float",
+    "float"
+  ],
+  "mpmath_version": "1.3.0",
+  "mpmath_working_precision_dps": 50,
+  "float32_or_complex64_cast_detected": false
+}

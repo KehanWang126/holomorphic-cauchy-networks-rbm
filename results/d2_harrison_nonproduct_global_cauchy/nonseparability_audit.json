@@ -1,0 +1,141 @@
+{
+  "architecture": "centered coordinate branch plus centered full-input global Holomorphic Cauchy branch",
+  "initialization": {
+    "label": "initialization",
+    "test_points": [
+      {
+        "theta1": [
+          0.3,
+          0.2
+        ],
+        "theta2": [
+          -0.4,
+          0.5
+        ],
+        "residual_real": 0.029225849885185562,
+        "residual_imag": 0.15670534656110935,
+        "residual_abs": 0.15940738986116293
+      },
+      {
+        "theta1": [
+          0.8,
+          -0.35
+        ],
+        "theta2": [
+          0.25,
+          0.6
+        ],
+        "residual_real": -0.07263130102605748,
+        "residual_imag": -0.38964471483516144,
+        "residual_abs": 0.3963562913436749
+      },
+      {
+        "theta1": [
+          -0.2,
+          0.7
+        ],
+        "theta2": [
+          1.1,
+          -0.15
+        ],
+        "residual_real": 0.6590383685191017,
+        "residual_imag": -0.4016206498453155,
+        "residual_abs": 0.7717711562130919
+      }
+    ],
+    "maximum_interaction_residual_abs": 0.7717711562130919,
+    "interaction_residual_passed": true
+  },
+  "post_training": {
+    "label": "post_training_step_15000",
+    "test_points": [
+      {
+        "theta1": [
+          0.3,
+          0.2
+        ],
+        "theta2": [
+          -0.4,
+          0.5
+        ],
+        "residual_real": -0.017565899843542954,
+        "residual_imag": 0.012740578323407359,
+        "residual_abs": 0.02169984270284602
+      },
+      {
+        "theta1": [
+          0.8,
+          -0.35
+        ],
+        "theta2": [
+          0.25,
+          0.6
+        ],
+        "residual_real": 0.02547341220602628,
+        "residual_imag": 0.01769323549798968,
+        "residual_abs": 0.031015243216932067
+      },
+      {
+        "theta1": [
+          -0.2,
+          0.7
+        ],
+        "theta2": [
+          1.1,
+          -0.15
+        ],
+        "residual_real": 0.004030639048279827,
+        "residual_imag": 0.04770113676699789,
+        "residual_abs": 0.04787112386398878
+      }
+    ],
+    "maximum_interaction_residual_abs": 0.04787112386398878,
+    "interaction_residual_passed": true
+  },
+  "read_only_evaluation": {
+    "label": "read_only_evaluation_step_15000",
+    "test_points": [
+      {
+        "theta1": [
+          0.3,
+          0.2
+        ],
+        "theta2": [
+          -0.4,
+          0.5
+        ],
+        "residual_real": -0.017565899843542954,
+        "residual_imag": 0.012740578323407359,
+        "residual_abs": 0.02169984270284602
+      },
+      {
+        "theta1": [
+          0.8,
+          -0.35
+        ],
+        "theta2": [
+          0.25,
+          0.6
+        ],
+        "residual_real": 0.02547341220602628,
+        "residual_imag": 0.01769323549798968,
+        "residual_abs": 0.031015243216932067
+      },
+      {
+        "theta1": [
+          -0.2,
+          0.7
+        ],
+        "theta2": [
+          1.1,
+          -0.15
+        ],
+        "residual_real": 0.004030639048279827,
+        "residual_imag": 0.04770113676699789,
+        "residual_abs": 0.04787112386398878
+      }
+    ],
+    "maximum_interaction_residual_abs": 0.04787112386398878,
+    "interaction_residual_passed": true
+  }
+}

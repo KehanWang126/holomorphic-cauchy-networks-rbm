@@ -1,0 +1,74 @@
+{
+  "target_trainable_real_scalar_dof": 15236,
+  "module_breakdown": {
+    "coord_embedding": {
+      "tensor_parameter_count": 32,
+      "real_scalar_dof": 64,
+      "parameter_names": [
+        "coord_embedding"
+      ]
+    },
+    "boundary_embedding": {
+      "tensor_parameter_count": 32,
+      "real_scalar_dof": 64,
+      "parameter_names": [
+        "boundary_embedding"
+      ]
+    },
+    "interior_net": {
+      "tensor_parameter_count": 2091,
+      "real_scalar_dof": 4087,
+      "parameter_names": [
+        "interior_net.linear_0.weight",
+        "interior_net.linear_0.bias",
+        "interior_net.cauchy_0.lambda1",
+        "interior_net.cauchy_0.lambda2",
+        "interior_net.cauchy_0.rho",
+        "interior_net.linear_1.weight",
+        "interior_net.linear_1.bias"
+      ]
+    },
+    "boundary_net": {
+      "tensor_parameter_count": 4865,
+      "real_scalar_dof": 9602,
+      "parameter_names": [
+        "boundary_net.linear_0.weight",
+        "boundary_net.linear_0.bias",
+        "boundary_net.cauchy_0.lambda1",
+        "boundary_net.cauchy_0.lambda2",
+        "boundary_net.cauchy_0.rho",
+        "boundary_net.linear_1.weight",
+        "boundary_net.linear_1.bias"
+      ]
+    },
+    "global_net": {
+      "tensor_parameter_count": 764,
+      "real_scalar_dof": 1419,
+      "parameter_names": [
+        "global_net.linear_0.weight",
+        "global_net.linear_0.bias",
+        "global_net.cauchy_0.lambda1",
+        "global_net.cauchy_0.lambda2",
+        "global_net.cauchy_0.rho",
+        "global_net.linear_1.weight",
+        "global_net.linear_1.bias"
+      ]
+    }
+  },
+  "trainable_tensor_elements": 7784,
+  "trainable_real_scalar_dof": 15236,
+  "absolute_difference_from_target": 0,
+  "signed_difference_from_target": 0,
+  "percentage_difference_from_target": 0.0,
+  "percentage_of_target": 100.0,
+  "within_95_to_100_percent_budget": true,
+  "dummy_parameters": false,
+  "frozen_parameters_used_to_adjust_count": false,
+  "all_parameters_participate_in_forward": true,
+  "coordinate_branch_nonzero_gradient": true,
+  "global_branch_nonzero_gradient": true,
+  "boundary_branch_nonzero_gradient": true,
+  "coordinate_branch_gradient_norm": 2929.7055866282135,
+  "boundary_branch_gradient_norm": 8.789964431665762,
+  "global_branch_gradient_norm": 797.2719372312833
+}
