@@ -10,7 +10,7 @@
 
 ## Frozen experiment identity
 
-- [ ] Benchmark is `d2_skew_symmetric_product_form`.
+- [ ] Benchmark is one of the audited 2D release identities.
 - [ ] Seed is 12345.
 - [ ] Parameter count is 15,236 real scalar DOF.
 - [ ] Formal endpoint is exactly 15,000 updates.
@@ -18,6 +18,8 @@
 - [ ] Initial learning rate is \(5\times10^{-5}\).
 - [ ] Learning rate changes to \(10^{-5}\) after step 12,000.
 - [ ] Adam state is preserved across the learning-rate change.
+- [ ] Harrison uses the centered full-input global branch and passes the
+      nonseparability interaction audit.
 
 ## Scientific safeguards
 
@@ -37,4 +39,3 @@
 - [ ] Fixed-endpoint accuracy is comparable to the audited reference.
 - [ ] Output configuration, environment, runtime, pointwise results, summary,
       figure, and checkpoint hash files are present.
-
