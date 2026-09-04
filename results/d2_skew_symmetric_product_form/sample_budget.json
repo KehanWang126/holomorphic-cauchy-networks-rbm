@@ -1,0 +1,27 @@
+{
+  "paper_protocol": {
+    "steps": 15000,
+    "batch_bar": 3416,
+    "batch_boundary": 427,
+    "batch_mono": 427
+  },
+  "paper_budget": {
+    "bar": 51240000,
+    "boundary": 6405000,
+    "mono": 6405000,
+    "total": 64050000
+  },
+  "reference_25k_protocol": {
+    "steps": 25000,
+    "batch_bar": 2048,
+    "batch_boundary": 256,
+    "batch_mono": 256
+  },
+  "reference_25k_budget": {
+    "bar": 51200000,
+    "boundary": 6400000,
+    "mono": 6400000,
+    "total": 64000000
+  },
+  "relative_difference_percent": 0.078125
+}

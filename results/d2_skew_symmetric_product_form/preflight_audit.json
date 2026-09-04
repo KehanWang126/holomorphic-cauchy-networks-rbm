@@ -1,0 +1,5 @@
+{
+  "anchors": "ok",
+  "jacobian_max_abs_error": 1.1307241877103774e-09,
+  "gradients": "ok"
+}

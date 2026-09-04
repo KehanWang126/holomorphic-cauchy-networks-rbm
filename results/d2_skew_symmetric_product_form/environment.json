@@ -1,0 +1,11 @@
+{
+  "python": "3.10.20 | packaged by Anaconda, Inc. | (main, Mar 11 2026, 17:42:35) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "torch": "2.5.1+cu121",
+  "cuda_version": "12.1",
+  "cuda_available": true,
+  "device": "cuda",
+  "gpu_name": "NVIDIA GeForce RTX 4080 Laptop GPU",
+  "real_dtype": "torch.float64",
+  "complex_dtype": "torch.complex128"
+}

@@ -1,0 +1,9 @@
+{
+  "method": "NN4MGF",
+  "paper": "Deep Learning Method for Stationary Distribution of Reflected Brownian Motion",
+  "repository": "https://github.com/zhangz73/NN4MGF",
+  "commit": "1956666902281f6ce4558ca82d8d15fa038f06fb",
+  "benchmark_script": "test_skew_symmetric.py",
+  "public_table": "Plots/d=2/skewed_symmetry/tables.txt",
+  "benchmark_script_sha256": "bbeeae68957be291f06ed90b7f145c5f017205645aa83ed1e7a09c239c41709b"
+}

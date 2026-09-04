@@ -1,0 +1,21 @@
+{
+  "experiment": "d2_skew_symmetric_product_form",
+  "seed": 12345,
+  "fixed_endpoint": 15000,
+  "talbot_degree": 5,
+  "mre_1_5": 0.021469678964256566,
+  "mre_1_8": 0.02212594567221945,
+  "mre_1_10": 0.09737181627038102,
+  "invalid_count": 0,
+  "official_nn4mgf_mre_1_5": 0.02448436408158494,
+  "official_nn4mgf_mre_1_8": 0.08050234402416195,
+  "official_nn4mgf_mre_1_10": 0.13915071507802693,
+  "exact_transform_talbot_floor_mre_1_5": 0.01125802182111663,
+  "exact_transform_talbot_floor_mre_1_8": 0.020403278187951745,
+  "exact_transform_talbot_floor_mre_1_10": 0.03762126331709327,
+  "raw_predictions": true,
+  "prediction_clipping": false,
+  "evaluation_wall_clock_seconds": 0.46021010004915297,
+  "checkpoint_sha256": "3010b9805adc5b9fd1eb8bc1b1efb39e19ab4043fb755c628c206ff82cefe928",
+  "checkpoint_hash_unchanged_after_evaluation": true
+}
