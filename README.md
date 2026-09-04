@@ -64,9 +64,9 @@ and use **Run All**. The notebook creates a new timestamped directory under
 
 ## Audited reference result
 
-The previously audited production run gives the following fixed-endpoint
-Degree-5 mean relative errors (MREs). These values are reproduction targets,
-not early-stopping criteria.
+The audited reference run included in this repository gives the following
+fixed-endpoint Degree-5 mean relative errors (MREs). These values are
+reproduction targets, not early-stopping criteria.
 
 | Evaluation range | HCN | Published NN4MGF |
 |---|---:|---:|
@@ -76,7 +76,8 @@ not early-stopping criteria.
 
 The audited HCN run contains no invalid raw prediction. The exact checkpoint
 hash and pointwise reference values are kept out of the training path and are
-used only for post-run auditing.
+used only for post-run auditing. The complete curated artifact set is in
+[`results/d2_skew_symmetric_product_form/`](results/d2_skew_symmetric_product_form/).
 
 Fresh training runs on a different PyTorch, CUDA, driver, or GPU stack need
 not be bitwise identical. Acceptance is based on the frozen protocol,
@@ -99,4 +100,3 @@ The published NN4MGF comparison values are traced to commit
 
 Work in progress. Do not treat intermediate repository revisions as the final
 paper artifact.
-
