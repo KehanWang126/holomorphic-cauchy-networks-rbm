@@ -1,0 +1,41 @@
+{
+  "configuration": {
+    "name": "original_general_mixed_BAR",
+    "BAR": {
+      "global_fraction": 0.5,
+      "complex_diagonal_fraction": 0.2,
+      "near_diagonal_fraction": 0.2,
+      "positive_real_diagonal_fraction": 0.1,
+      "real_range": [
+        -0.5,
+        5.0
+      ],
+      "imaginary_range": [
+        -5.0,
+        5.0
+      ]
+    },
+    "boundary": {
+      "source": "sample_training_theta",
+      "real_range": [
+        -0.5,
+        5.0
+      ],
+      "imaginary_range": [
+        -5.0,
+        5.0
+      ]
+    },
+    "monotonicity": {
+      "source": "sample_training_theta projected to real axis",
+      "real_range": [
+        -0.5,
+        5.0
+      ],
+      "imaginary_part": 0.0
+    },
+    "contains_special_inversion_nodes": false
+  },
+  "contains_special_inversion_nodes": false,
+  "ground_truth_used_by_training": false
+}

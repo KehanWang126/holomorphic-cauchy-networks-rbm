@@ -1,0 +1,29 @@
+{
+  "source": "user-run public notebook output on 2026-09-07",
+  "preflight": {
+    "seed": 12345,
+    "output_shape": [
+      4,
+      31
+    ],
+    "jacobian_shape": [
+      4,
+      31,
+      30
+    ],
+    "jacobian_finite": true,
+    "loss_terms_finite": true,
+    "gradients_present_and_finite": true,
+    "gradient_norm": 302863.8847863835,
+    "interior_origin_error": 7.776515945702113e-16,
+    "boundary_anchor_error": 9.485749680535096e-16,
+    "minimum_cauchy_denominator": 0.0018099057657312144,
+    "parameter_real_scalar_dof": 17028
+  },
+  "two_step_losses": [
+    1130.0174267042128,
+    439.2679090627142
+  ],
+  "passed": true,
+  "formal_results_written": false
+}

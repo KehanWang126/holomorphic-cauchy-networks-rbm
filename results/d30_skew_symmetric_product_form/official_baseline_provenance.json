@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/zhangz73/NN4MGF",
+  "observed_commit": "1956666902281f6ce4558ca82d8d15fa038f06fb",
+  "source_file": "Plots/d=30/skewed_symmetry/tables.txt",
+  "published_table_degree": 5,
+  "transcription": "prediction column at printed precision, t=1,...,10",
+  "used_by_training": false
+}

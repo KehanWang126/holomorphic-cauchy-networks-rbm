@@ -1,0 +1,9 @@
+{
+  "bar_points": 51200000,
+  "boundary_points": 6400000,
+  "monotonicity_points": 6400000,
+  "total_sampled_constraints": 64000000,
+  "matched_20d_total_sampled_constraints": 64000000,
+  "high_lr_steps": 40000,
+  "low_lr_steps": 10000
+}
