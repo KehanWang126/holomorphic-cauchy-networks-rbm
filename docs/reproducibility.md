@@ -19,6 +19,8 @@ Stage A loads an archived endpoint without changing its bytes. It must:
 For 2D, the fixed endpoint is step 15,000 and the primary inversion uses Talbot
 Degree 5. For 20D, the endpoint is step 25,000, Degree 8 is primary, and Degree 5
 is retained only as a numerical diagnostic and historical comparison bridge.
+For 30D, the endpoint is step 50,000 and Degree 8 is primary; Degrees 5 and 6
+quantify low-degree inversion effects.
 
 The 20D activation evaluator verifies six endpoints: Cauchy and complex tanh for
 seeds 12345, 22345, and 32345. It evaluates 120 points in total. A complete CPU
@@ -75,6 +77,31 @@ A successful 20D run must:
 The included new seed-12345 training run used the same frozen protocol and
 replaced its interrupted historical predecessor. Seeds 22345 and 32345 retain
 their previously audited fixed endpoints.
+
+### 30D main-experiment requirements
+
+A successful 30D run must:
+
+1. use seed 12345 and preserve the exact Adam and RNG state across the historical
+   step-20,000 continuation boundary;
+2. execute exactly 50,000 Adam updates with batches 1024/128/128;
+3. expose BAR, boundary, and monotonicity branches to 51.2M, 6.4M, and 6.4M
+   sampled constraints, respectively;
+4. preserve Adam state when the learning rate changes after step 40,000;
+5. use sequential branch backward only to reduce peak memory;
+6. report only the prespecified step-50,000 checkpoint;
+7. keep recovery checkpoints, exact tails, and public baselines outside model
+   selection; and
+8. evaluate raw Degree-5/6/8 predictions with Degree 8 primary.
+
+The released historical endpoint uses checkpoint schema
+`d30_general_pointmatched50k_v1` and SHA-256
+`0bfcd0dc11779fabd477fcf5ee9bf07772e555a9b10776618dc4e47a1106be1c`.
+Its stored predictions were cross-checked between the training history and the
+independent 35k-to-50k diagnostic table. The public notebook also exposes a
+consolidated clean-training path, but that path is not substituted for the
+archived endpoint. The later 50k-to-60k continuation and retrospective 29k/49k
+minima are excluded from the main result.
 
 ## Talbot diagnostic
 

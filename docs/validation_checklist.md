@@ -55,6 +55,26 @@
 - [ ] The NN4MGF reference is labeled archived and not re-evaluated.
 - [ ] All 22 automated checks pass.
 
+## 30D main-experiment gate
+
+- [ ] Only `notebooks/d30_skew_symmetric_product_form.ipynb` is released.
+- [ ] Seed is fixed at 12345 and the endpoint is fixed at step 50,000.
+- [ ] Parameter count is 17,028 trainable real scalar degrees of freedom.
+- [ ] The 1024/128/128 batches and 50,000 updates total 64,000,000 constraints.
+- [ ] Adam state is preserved across the learning-rate change after step 40,000.
+- [ ] Sequential branch backward is used without changing the summed gradient.
+- [ ] Intermediate files are recovery-only and never selected by tail accuracy.
+- [ ] Degree 8 is primary; Degrees 5 and 6 are diagnostics.
+- [ ] Ground truth and the published table appear only after training code.
+- [ ] Raw invalid or nonfinite predictions are retained and counted.
+- [ ] The historical schema is `d30_general_pointmatched50k_v1` and the fixed
+      checkpoint SHA-256 is verified before any legacy pickle-capable load.
+- [ ] The stored fixed-endpoint predictions agree between training history and
+      the independent diagnostic table for every shared point.
+- [ ] The 50k-to-60k branch and retrospective 29k/49k minima are excluded.
+- [ ] The final checkpoint hash is unchanged by evaluation.
+- [ ] `python tests/test_d30_notebook.py` passes.
+
 ## Formal-run acceptance
 
 - [ ] Preflight audits pass before training or evaluation.
