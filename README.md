@@ -6,12 +6,13 @@ estimation for reflected Brownian motion (RBM).
 
 ## Audited release scope
 
-The current release contains four experiments:
+The current release contains five experiments:
 
 1. a 2D skew-symmetric product-form benchmark;
 2. a 2D Harrison non-product benchmark;
 3. the 20D skew-symmetric product-form HCN main experiment; and
-4. a 20D fixed-budget Cauchy-versus-complex-tanh activation ablation.
+4. a 20D fixed-budget Cauchy-versus-complex-tanh activation ablation; and
+5. the 30D skew-symmetric product-form HCN main experiment.
 
 Every reported model is evaluated at a prespecified endpoint. No ground-truth
 tail probability is used for training, checkpoint selection, or seed selection.
@@ -25,8 +26,10 @@ notebooks/
   d2_skew_symmetric_product_form.ipynb
   d2_harrison_nonproduct_global_cauchy.ipynb
   d20_skew_symmetric_product_form.ipynb
+  d30_skew_symmetric_product_form.ipynb
 experiments/
   d20_activation_ablation/
+  d30_skew_symmetric_product_form/
     d20_activation_ablation_evaluate.ipynb
     checkpoints/
     reference/
@@ -62,7 +65,7 @@ also passed on CPU with PyTorch 2.5.1 and mpmath 1.3.0.
 
 ## Running the notebooks
 
-The 2D and 20D main notebooks default to a safe smoke test. In their configuration
+The 2D, 20D, and 30D main notebooks default to a safe smoke test. In their configuration
 cell, choose the documented mode:
 
 - `smoke`: structural checks and two tiny optimizer steps;
@@ -70,6 +73,10 @@ cell, choose the documented mode:
 - `train_one` (20D): one explicitly selected paper seed;
 - `train_all` (20D): all three paper seeds sequentially;
 - `evaluate`: evaluate a completed run at the fixed endpoint.
+
+The 30D release result uses the archived historical step-50,000 checkpoint. Its
+evaluator accepts that audited legacy schema, verifies the published SHA-256,
+and always writes recomputed results to a new output directory.
 
 The 20D activation ablation never trains. From the repository root, run:
 
@@ -136,6 +143,24 @@ diagnostics, and a 22-test CPU validation report are committed under
 `experiments/d20_activation_ablation/` and `results/d20_activation_ablation/`;
 the executable test suite is under `tests/`.
 
+## Audited 30D main result
+
+The 30D main result uses the prespecified seed `12345` and fixed global step
+50,000. The first 40,000 updates use learning rate `5e-5`; the final 10,000 use
+`1e-5`. With batches `1024/128/128`, its 64 million sampled constraints exactly
+match the 20D per-seed budget. Talbot Degree 8 is primary.
+
+| Evaluation range | HCN MRE | Exact-transform Talbot floor |
+|---|---:|---:|
+| \(t=1{:}5\) | 1.685% | 0.155% |
+| \(t=1{:}8\) | 6.547% | 0.179% |
+| \(t=1{:}10\) | 8.873% | 0.376% |
+
+These metrics come from the fixed endpoint, not the retrospective 29k or 49k
+diagnostic minima and not the later 50k-to-60k exploratory continuation. Raw
+predictions are retained; the small Degree-8 overshoot at `t=1` is flagged rather
+than clipped.
+
 ## Baseline provenance
 
 The 2D published NN4MGF comparison values are traced to commit
@@ -151,6 +176,6 @@ See [docs/reproducibility.md](docs/reproducibility.md) for the staged verificati
 protocol and [docs/validation_checklist.md](docs/validation_checklist.md) for the
 release gates.
 
-The 2D and 20D entries listed above are the audited public subset. The 30D and
-50D experiments will be added only after their public notebooks and artifacts
+The 2D, 20D, and 30D entries listed above are the audited public subset. The 50D
+result artifacts will be added only after its public notebook and fixed endpoint
 pass the same checks.
