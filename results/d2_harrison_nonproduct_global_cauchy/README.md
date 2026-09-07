@@ -47,4 +47,3 @@ No reliable closed-form exact joint transform was available in the audited
 Harrison sources, so this release does not fabricate an exact-transform Talbot
 floor. Exact Harrison tails are instead computed from the benchmark density
 integral after training. Only the prespecified step-15,000 model is included.
-

@@ -1,0 +1,120 @@
+{
+  "trainable_tensor_elements": 8322,
+  "complex_parameter_elements": 8066,
+  "real_parameter_elements": 256,
+  "trainable_real_scalar_dof": 16388,
+  "modules": [
+    {
+      "name": "coord_embedding",
+      "dtype": "torch.complex128",
+      "tensor_elements": 320,
+      "real_scalar_dof": 640,
+      "trainable": true
+    },
+    {
+      "name": "boundary_embedding",
+      "dtype": "torch.complex128",
+      "tensor_elements": 320,
+      "real_scalar_dof": 640,
+      "trainable": true
+    },
+    {
+      "name": "interior_net.linear_0.weight",
+      "dtype": "torch.complex128",
+      "tensor_elements": 2176,
+      "real_scalar_dof": 4352,
+      "trainable": true
+    },
+    {
+      "name": "interior_net.linear_0.bias",
+      "dtype": "torch.complex128",
+      "tensor_elements": 128,
+      "real_scalar_dof": 256,
+      "trainable": true
+    },
+    {
+      "name": "interior_net.cauchy_0.lambda1",
+      "dtype": "torch.complex128",
+      "tensor_elements": 128,
+      "real_scalar_dof": 256,
+      "trainable": true
+    },
+    {
+      "name": "interior_net.cauchy_0.lambda2",
+      "dtype": "torch.complex128",
+      "tensor_elements": 128,
+      "real_scalar_dof": 256,
+      "trainable": true
+    },
+    {
+      "name": "interior_net.cauchy_0.rho",
+      "dtype": "torch.float64",
+      "tensor_elements": 128,
+      "real_scalar_dof": 128,
+      "trainable": true
+    },
+    {
+      "name": "interior_net.linear_1.weight",
+      "dtype": "torch.complex128",
+      "tensor_elements": 128,
+      "real_scalar_dof": 256,
+      "trainable": true
+    },
+    {
+      "name": "interior_net.linear_1.bias",
+      "dtype": "torch.complex128",
+      "tensor_elements": 1,
+      "real_scalar_dof": 2,
+      "trainable": true
+    },
+    {
+      "name": "boundary_net.linear_0.weight",
+      "dtype": "torch.complex128",
+      "tensor_elements": 4224,
+      "real_scalar_dof": 8448,
+      "trainable": true
+    },
+    {
+      "name": "boundary_net.linear_0.bias",
+      "dtype": "torch.complex128",
+      "tensor_elements": 128,
+      "real_scalar_dof": 256,
+      "trainable": true
+    },
+    {
+      "name": "boundary_net.cauchy_0.lambda1",
+      "dtype": "torch.complex128",
+      "tensor_elements": 128,
+      "real_scalar_dof": 256,
+      "trainable": true
+    },
+    {
+      "name": "boundary_net.cauchy_0.lambda2",
+      "dtype": "torch.complex128",
+      "tensor_elements": 128,
+      "real_scalar_dof": 256,
+      "trainable": true
+    },
+    {
+      "name": "boundary_net.cauchy_0.rho",
+      "dtype": "torch.float64",
+      "tensor_elements": 128,
+      "real_scalar_dof": 128,
+      "trainable": true
+    },
+    {
+      "name": "boundary_net.linear_1.weight",
+      "dtype": "torch.complex128",
+      "tensor_elements": 128,
+      "real_scalar_dof": 256,
+      "trainable": true
+    },
+    {
+      "name": "boundary_net.linear_1.bias",
+      "dtype": "torch.complex128",
+      "tensor_elements": 1,
+      "real_scalar_dof": 2,
+      "trainable": true
+    }
+  ]
+}

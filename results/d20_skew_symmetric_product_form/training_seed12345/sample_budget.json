@@ -1,0 +1,14 @@
+{
+  "per_seed": {
+    "bar_points": 51200000,
+    "boundary_points": 6400000,
+    "monotonicity_points": 6400000,
+    "total_sampled_constraints": 64000000
+  },
+  "number_of_seeds": 3,
+  "all_seeds_total_sampled_constraints": 192000000,
+  "active_training_seeds": [
+    12345
+  ],
+  "active_run_total_sampled_constraints": 64000000
+}

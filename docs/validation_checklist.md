@@ -1,41 +1,66 @@
 # Release validation checklist
 
-## Notebook integrity
+## Repository-wide integrity
 
-- [ ] Notebook opens as valid nbformat v4 JSON.
-- [ ] A fresh kernel can execute all cells in order.
-- [ ] No cell depends on variables from an earlier interactive session.
-- [ ] No absolute local path is embedded in code or outputs.
-- [ ] The committed notebook contains no execution outputs.
+- [ ] Every notebook opens as valid nbformat v4 JSON.
+- [ ] Committed notebooks contain no execution outputs.
+- [ ] No notebook depends on state from an earlier interactive session.
+- [ ] No absolute local user path is embedded in committed code or metadata.
+- [ ] Every referenced relative path exists.
+- [ ] Every curated artifact matches its `manifest.sha256` entry.
+- [ ] Raw timestamped run directories and Jupyter autosave files are excluded.
 
-## Frozen experiment identity
+## 2D release gate
 
-- [ ] Benchmark is one of the audited 2D release identities.
-- [ ] Seed is 12345.
-- [ ] Parameter count is 15,236 real scalar DOF.
-- [ ] Formal endpoint is exactly 15,000 updates.
-- [ ] Total sampled constraints are exactly 64,050,000.
-- [ ] Initial learning rate is \(5\times10^{-5}\).
-- [ ] Learning rate changes to \(10^{-5}\) after step 12,000.
-- [ ] Adam state is preserved across the learning-rate change.
-- [ ] Harrison uses the centered full-input global branch and passes the
-      nonseparability interaction audit.
+- [ ] Seed is fixed at 12345.
+- [ ] Endpoint is fixed at step 15,000.
+- [ ] Parameter count is 15,236 real scalar degrees of freedom.
+- [ ] Total sampled constraints are 64,050,000.
+- [ ] Adam state is preserved across the learning-rate change after step 12,000.
+- [ ] Talbot Degree 5 is the primary 2D protocol.
+- [ ] Harrison passes its full-input nonseparability audit.
+- [ ] Ground truth is absent from training and checkpoint selection.
+- [ ] Raw predictions are not clipped.
+- [ ] Checkpoint SHA-256 is unchanged by evaluation.
 
-## Scientific safeguards
+## 20D main-experiment gate
 
-- [ ] Training never reads exact tails or published predictions.
-- [ ] No ground-truth early stopping or checkpoint selection occurs.
-- [ ] Only the prespecified step-15,000 model is saved and reported.
-- [ ] Primary 2D evaluation uses Talbot Degree 5 only.
-- [ ] Predictions are raw and are not clipped to \([0,1]\).
-- [ ] Invalid and nonfinite values are reported rather than replaced.
-- [ ] Checkpoint SHA256 is unchanged by evaluation.
+- [ ] Only `notebooks/d20_skew_symmetric_product_form.ipynb` is released.
+- [ ] The corrected dimension audit uses `PARAMS.mu.numel()` rather than the
+      nonexistent `PARAMS.d` attribute.
+- [ ] Seeds are exactly 12345, 22345, and 32345.
+- [ ] Endpoint is fixed at step 25,000 with no intermediate evaluation.
+- [ ] Parameter count is 16,388 real scalar degrees of freedom.
+- [ ] Each seed uses exactly 64,000,000 sampled constraints.
+- [ ] Adam state is preserved across the learning-rate change after step 20,000.
+- [ ] Degree 8 is primary and Degree 5 is labeled diagnostic.
+- [ ] All 60 HCN evaluation points are present.
+- [ ] Three-seed aggregation uses sample SD with `ddof=1`.
+- [ ] Invalid predictions are retained and counted.
+- [ ] The three endpoint hashes match `checkpoint_manifest.json`.
+
+## 20D activation-ablation gate
+
+- [ ] The evaluator contains no training mode or optimizer step.
+- [ ] Exactly six method/seed checkpoint pairs are present.
+- [ ] All six endpoint steps are 25,000 and hashes match the manifest.
+- [ ] The comparison is described as same-width and same-budget, not exactly
+      parameter-matched.
+- [ ] Cauchy is evaluated from weights with PyTorch complex128.
+- [ ] Tanh is evaluated from weights with the audited NumPy complex128 forward
+      map and does not call the crashing PyTorch complex-tanh kernel.
+- [ ] All 120 evaluation points are present.
+- [ ] No seed or failed point is excluded from aggregation.
+- [ ] Nonfinite errors make an interval undefined rather than being removed.
+- [ ] The NN4MGF reference is labeled archived and not re-evaluated.
+- [ ] All 22 automated checks pass.
 
 ## Formal-run acceptance
 
-- [ ] Preflight audits pass.
-- [ ] Training finishes without NaN, Inf, or pole-proximity failure.
-- [ ] Degree-5 invalid count is zero.
-- [ ] Fixed-endpoint accuracy is comparable to the audited reference.
-- [ ] Output configuration, environment, runtime, pointwise results, summary,
-      figure, and checkpoint hash files are present.
+- [ ] Preflight audits pass before training or evaluation.
+- [ ] Training, where requested, completes without NaN, Inf, or an unhandled
+      pole-proximity failure.
+- [ ] Evaluation produces configuration, environment, runtime, pointwise,
+      summary, figure, and hash records.
+- [ ] Results are comparable at the prespecified endpoint without selecting a
+      more favorable intermediate step, seed, or Talbot degree.

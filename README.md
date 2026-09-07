@@ -1,31 +1,22 @@
 # Holomorphic Cauchy Networks for Reflected Brownian Motion
 
-This repository contains the reproducibility code for a fixed-capacity
-Holomorphic Cauchy Network (HCN) approach to stationary tail estimation for
-reflected Brownian motion (RBM). The project is being prepared for journal
-submission and is released incrementally after each experiment passes the same
-audit and reproduction checks.
+This repository contains the reproducibility code and audited fixed-checkpoint
+artifacts for Holomorphic Cauchy Networks (HCNs) applied to stationary tail
+estimation for reflected Brownian motion (RBM).
 
-## Current scope
+## Audited release scope
 
-The current audited release contains two two-dimensional benchmarks. The
-skew-symmetric product-form experiment uses:
+The current release contains four experiments:
 
-- coordinate-shared holomorphic Cauchy architecture;
-- 15,236 trainable real scalar degrees of freedom;
-- seed 12345;
-- prespecified endpoint of 15,000 optimizer updates;
-- 64.05 million sampled constraints;
-- Talbot Degree 5 evaluation;
-- raw predictions with no clipping;
-- no ground-truth tails in training or endpoint selection.
+1. a 2D skew-symmetric product-form benchmark;
+2. a 2D Harrison non-product benchmark;
+3. the 20D skew-symmetric product-form HCN main experiment; and
+4. a 20D fixed-budget Cauchy-versus-complex-tanh activation ablation.
 
-The Harrison experiment uses the same seed, endpoint, sampled-constraint
-budget, and 15,236-real-DOF budget. It adds a centered full-input Holomorphic
-Cauchy branch and a nonseparability audit for the non-product benchmark.
-
-The 20D, 30D, and 50D experiments will be added only after their public
-notebooks and artifacts pass the same checks.
+Every reported model is evaluated at a prespecified endpoint. No ground-truth
+tail probability is used for training, checkpoint selection, or seed selection.
+Predictions are reported without clipping, and invalid or nonfinite outcomes are
+recorded rather than silently discarded.
 
 ## Repository layout
 
@@ -33,19 +24,29 @@ notebooks and artifacts pass the same checks.
 notebooks/
   d2_skew_symmetric_product_form.ipynb
   d2_harrison_nonproduct_global_cauchy.ipynb
-docs/
-  reproducibility.md
-  validation_checklist.md
+  d20_skew_symmetric_product_form.ipynb
+experiments/
+  d20_activation_ablation/
+    d20_activation_ablation_evaluate.ipynb
+    checkpoints/
+    reference/
 results/
   d2_skew_symmetric_product_form/
   d2_harrison_nonproduct_global_cauchy/
+  d20_skew_symmetric_product_form/
+  d20_activation_ablation/
+docs/
+  reproducibility.md
+  validation_checklist.md
 ```
 
-The notebook is deliberately self-contained so that a reviewer can inspect
-the architecture, sampler, BAR objective, training protocol, and numerical
-inversion without following hidden imports.
+The training notebooks are deliberately self-contained so that a reviewer can
+inspect the benchmark, architecture, sampler, BAR objective, optimizer protocol,
+and numerical inversion without following hidden project imports. The 20D
+activation ablation is a separate evaluation-only package containing the six
+frozen endpoint weights required for that comparison.
 
-## Quick start
+## Environment
 
 Create the reference environment with Conda:
 
@@ -55,61 +56,101 @@ conda activate hcn-rbm
 jupyter lab
 ```
 
-Open either notebook under `notebooks/` and choose one mode in the
-configuration cell:
+The audited training environment used Python 3.10.20, PyTorch 2.5.1 with CUDA
+12.1, and an NVIDIA GeForce RTX 4080 Laptop GPU. The 20D frozen-weight evaluator
+also passed on CPU with PyTorch 2.5.1 and mpmath 1.3.0.
 
-- `RUN_MODE = "smoke"`: two optimizer steps; this is the safe default.
-- `RUN_MODE = "train"`: the fixed 15,000-step paper protocol, followed by
-  Degree-5 evaluation.
-- `RUN_MODE = "evaluate"`: evaluate a checkpoint produced by this cleaned
-  notebook without retraining.
+## Running the notebooks
 
-For the formal reproduction, restart the kernel, set `RUN_MODE = "train"`,
-and use **Run All**. The notebook creates a new timestamped directory under
-`outputs/`; it never overwrites an earlier run.
+The 2D and 20D main notebooks default to a safe smoke test. In their configuration
+cell, choose the documented mode:
 
-## Audited reference result
+- `smoke`: structural checks and two tiny optimizer steps;
+- `train` (2D): the fixed 15,000-step protocol;
+- `train_one` (20D): one explicitly selected paper seed;
+- `train_all` (20D): all three paper seeds sequentially;
+- `evaluate`: evaluate a completed run at the fixed endpoint.
 
-The audited reference run included in this repository gives the following
-fixed-endpoint Degree-5 mean relative errors (MREs). These values are
-reproduction targets, not early-stopping criteria.
+The 20D activation ablation never trains. From the repository root, run:
 
-| Evaluation range | HCN | Published NN4MGF |
+```bash
+cd experiments/d20_activation_ablation
+jupyter lab d20_activation_ablation_evaluate.ipynb
+```
+
+Then select **Restart Kernel and Run All**. Its audited default is CPU and it
+evaluates all six bundled step-25,000 checkpoints.
+
+The same fixed-weight checks can be run noninteractively from the repository root:
+
+```bash
+python tests/test_d20_activation_ablation.py
+```
+
+## Audited 2D results
+
+The fixed step-15,000 Degree-5 results are:
+
+| Benchmark and range | HCN MRE | NN4MGF reference MRE |
 |---|---:|---:|
-| \(t=1{:}5\) | 2.147% | 2.448% |
-| \(t=1{:}8\) | 2.213% | 8.050% |
-| \(t=1{:}10\) | 9.737% | 13.915% |
+| 2D skew-symmetric, \(t=1{:}5\) | 2.147% | 2.448% |
+| 2D skew-symmetric, \(t=1{:}8\) | 2.213% | 8.050% |
+| 2D skew-symmetric, \(t=1{:}10\) | 9.737% | 13.915% |
+| 2D Harrison, \(t=1{:}5\) | 1.422% | 6.684% |
 
-The audited HCN run contains no invalid raw prediction. The exact checkpoint
-hash and pointwise reference values are kept out of the training path and are
-used only for post-run auditing. The complete curated artifact set is in
-[`results/d2_skew_symmetric_product_form/`](results/d2_skew_symmetric_product_form/).
+The curated artifacts and exact endpoint hashes are under the corresponding
+`results/d2_*` directories.
 
-The Harrison fixed-endpoint run attains a Degree-5 MRE of **1.422%** on
-(t=1{:}5), compared with **6.684%** for the published NN4MGF values, with no
-invalid raw prediction. Its full-input interaction residual remains nonzero
-after training. The curated artifacts are in
-[`results/d2_harrison_nonproduct_global_cauchy/`](results/d2_harrison_nonproduct_global_cauchy/).
+## Audited 20D main results
 
-Fresh training runs on a different PyTorch, CUDA, driver, or GPU stack need
-not be bitwise identical. Acceptance is based on the frozen protocol,
-successful numerical audits, absence of invalid predictions, and comparable
-fixed-endpoint accuracy. Evaluation of an unchanged checkpoint should be
-numerically identical in the same software environment.
+The 20D main result uses three prespecified seeds (`12345`, `22345`, `32345`),
+the fixed step-25,000 endpoint, and Talbot Degree 8 as the primary evaluation.
+The table reports the arithmetic mean MRE and sample standard deviation across
+all three seeds in percentage points.
 
-## Reproducibility and provenance
+| Evaluation range | HCN MRE, mean ± sample SD | Archived NN4MGF MRE |
+|---|---:|---:|
+| \(t=1{:}5\) | 1.455% ± 1.306% | 2.802% |
+| \(t=1{:}8\) | 7.641% ± 1.568% | 8.148% |
+| \(t=1{:}10\) | 12.271% ± 3.690% | 18.908% |
 
-See [docs/reproducibility.md](docs/reproducibility.md) for the two-stage
-verification procedure and [docs/validation_checklist.md](docs/validation_checklist.md)
-for the release gate.
+Degree 5 is retained only as a numerical diagnostic and historical comparison
+bridge. The main-result directory contains all 60 recomputed HCN points, the
+three endpoint weights, aggregate tables, exact-transform diagnostics, and a
+SHA-256 manifest.
 
-The published NN4MGF comparison values are traced to commit
+## Audited 20D activation ablation
+
+The ablation compares Cauchy and complex-tanh networks with the same width,
+training schedule, sample budget, seeds, and fixed endpoint. It is not an exact
+parameter-count match: Cauchy has 16,388 trainable real scalar degrees of freedom
+and tanh has 15,108.
+
+The Degree-8 `1:8` Cauchy result is **7.641% ± 1.568%**. The tanh aggregate is
+dominated by a catastrophic failure of seed `22345`; that seed and every extreme
+prediction remain included. The full pointwise data should be used instead of a
+visually truncated summary of that failure.
+
+The six checkpoint SHA-256 hashes, 120 recomputed evaluation points, Talbot
+diagnostics, and a 22-test CPU validation report are committed under
+`experiments/d20_activation_ablation/` and `results/d20_activation_ablation/`;
+the executable test suite is under `tests/`.
+
+## Baseline provenance
+
+The 2D published NN4MGF comparison values are traced to commit
 `1956666902281f6ce4558ca82d8d15fa038f06fb` of
-[`zhangz73/NN4MGF`](https://github.com/zhangz73/NN4MGF), specifically
-`Plots/d=2/skewed_symmetry/tables.txt` and
-`Plots/d=2/harrison/tables.txt`.
+[`zhangz73/NN4MGF`](https://github.com/zhangz73/NN4MGF). The 20D NN4MGF files are
+archived released-checkpoint predictions with their provenance recorded locally;
+the NN4MGF checkpoint itself was not supplied and is not claimed to have been
+re-evaluated by this repository.
 
-## Status
+## Reproducibility and release status
 
-Work in progress. Do not treat intermediate repository revisions as the final
-paper artifact.
+See [docs/reproducibility.md](docs/reproducibility.md) for the staged verification
+protocol and [docs/validation_checklist.md](docs/validation_checklist.md) for the
+release gates.
+
+The 2D and 20D entries listed above are the audited public subset. The 30D and
+50D experiments will be added only after their public notebooks and artifacts
+pass the same checks.

@@ -1,0 +1,7 @@
+method,degree,interval,n_seeds,mean_mre_percent,sample_sd_percentage_points,sd_ddof,invalid_count,nonfinite_count,metric_status
+Cauchy,5,1:5,3,3.044758679718389,0.7791154144541661,1,2,0,complete
+Cauchy,5,1:8,3,7.768362143314531,2.5298065079037575,1,2,0,complete
+Cauchy,5,1:10,3,19.527634068436125,5.2386269060453,1,3,0,complete
+Cauchy,8,1:5,3,1.454647091794474,1.306386652363753,1,1,0,complete
+Cauchy,8,1:8,3,7.640695722644003,1.5677366227634562,1,1,0,complete
+Cauchy,8,1:10,3,12.270635678026531,3.6895350333110746,1,1,0,complete

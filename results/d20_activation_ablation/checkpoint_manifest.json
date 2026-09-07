@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "endpoint_step": 25000,
+  "seeds": [
+    12345,
+    22345,
+    32345
+  ],
+  "sources": {
+    "d20_skew_symmetric_product_form_train_one-checkpoint.ipynb": "8b00019a616beb1276ce2dd0b80a3f21324c3af95617ffdefce4b30c66177646",
+    "d20_cauchy_vs_tanh_vs_nn4mgf(2).ipynb": "b57dba98ed43bcf02aa9f9ceff5e852f243ac9aed50074073b3231f68ac79833"
+  },
+  "checkpoints": [
+    {
+      "method": "Cauchy",
+      "seed": 12345,
+      "path": "checkpoints/cauchy_seed12345_step25000.pt",
+      "sha256": "78e4301ea88ae808bfca5c503f243dbd2a7b6acd405e494ca033e8797c5b37f0",
+      "source": "checkpoint_step25000.pt",
+      "format": "public",
+      "role": "new uninterrupted run"
+    },
+    {
+      "method": "Cauchy",
+      "seed": 22345,
+      "path": "checkpoints/cauchy_seed22345_step25000.pt",
+      "sha256": "7a9e944407110f6fca9c4f812d7118b9834b80ee0d7438f56ddcb686188a0bd8",
+      "source": "step025000(1).pt",
+      "format": "legacy",
+      "role": "retained historical run"
+    },
+    {
+      "method": "Cauchy",
+      "seed": 32345,
+      "path": "checkpoints/cauchy_seed32345_step25000.pt",
+      "sha256": "24fa37cb2291a616bcaadd3529cb562e49d2cb8952b4d32682d80e199be49d84",
+      "source": "step025000(2).pt",
+      "format": "legacy",
+      "role": "retained historical run"
+    },
+    {
+      "method": "tanh",
+      "seed": 12345,
+      "path": "checkpoints/tanh_seed12345_step25000.pt",
+      "sha256": "9fc9d6e20635d6870e5a7e731737826730ed41c9ef23c5861fafda0dac7c5df0",
+      "source": "d20_ablation_complex_tanh_seed12345_20260813_164329.zip::d20_ablation_complex_tanh_seed12345_20260813_164329/step025000.pt",
+      "format": "legacy",
+      "role": "retained historical run",
+      "historical_runtime": {
+        "wall_clock_seconds": 68805.432624,
+        "peak_gpu_bytes": 3629925376
+      }
+    },
+    {
+      "method": "tanh",
+      "seed": 22345,
+      "path": "checkpoints/tanh_seed22345_step25000.pt",
+      "sha256": "cce3a334c61f90401d7936a281e96ca0cb08f24c5c33dcfdbdec639b8ea8e385",
+      "source": "d20_ablation_complex_tanh_seed22345_20260817_021409.zip::d20_ablation_complex_tanh_seed22345_20260817_021409/step025000.pt",
+      "format": "legacy",
+      "role": "retained historical run",
+      "historical_runtime": {
+        "wall_clock_seconds": 70168.5759883,
+        "peak_gpu_bytes": 3671956992
+      }
+    },
+    {
+      "method": "tanh",
+      "seed": 32345,
+      "path": "checkpoints/tanh_seed32345_step25000.pt",
+      "sha256": "1b03f0cb3f31bd5e00ecff826a0535da5414c2a1d899b73e9a52875b544dab3a",
+      "source": "d20_ablation_complex_tanh_seed32345_20260817_214901.zip::d20_ablation_complex_tanh_seed32345_20260817_214901/step025000.pt",
+      "format": "legacy",
+      "role": "retained historical run",
+      "historical_runtime": {
+        "wall_clock_seconds": 63331.031105400005,
+        "peak_gpu_bytes": 3671956992
+      }
+    }
+  ]
+}

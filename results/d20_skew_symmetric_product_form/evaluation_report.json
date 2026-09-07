@@ -1,0 +1,31 @@
+{
+  "status": "completed",
+  "training_performed_during_evaluation": false,
+  "experiment": "d20_skew_symmetric_product_form",
+  "endpoint_step": 25000,
+  "checkpoint_selection": "prespecified fixed endpoint only",
+  "seeds": [
+    12345,
+    22345,
+    32345
+  ],
+  "talbot_degrees": [
+    5,
+    8
+  ],
+  "primary_degree": 8,
+  "degree5_role": "numerical diagnostic and historical comparison",
+  "prediction_clipping": false,
+  "invalid_predictions_retained": true,
+  "aggregation": "arithmetic mean and sample standard deviation over all three seeds, ddof=1",
+  "point_count": 60,
+  "evaluation_runtime_seconds": 5.120078228000239,
+  "online_validation_tests": 22,
+  "online_validation_failures": 0,
+  "software": {
+    "torch": "2.5.1+cpu",
+    "mpmath": "1.3.0",
+    "device": "cpu"
+  },
+  "note": "The evaluation runtime covers the six-model ablation pass; Cauchy rows are released here as the main-result subset."
+}

@@ -1,0 +1,7 @@
+method,seed,degree,interval,n_points,mre,mre_percent,invalid_count,nonfinite_count,metric_status,evaluation_origin
+NN4MGF_archived,official,5,1:5,5,0.040255044331764356,4.025504433176436,1,0,complete,archived predictions; NOT re-evaluated
+NN4MGF_archived,official,5,1:8,8,0.08014339998836975,8.014339998836975,1,0,complete,archived predictions; NOT re-evaluated
+NN4MGF_archived,official,5,1:10,10,0.16807492323215706,16.807492323215705,1,0,complete,archived predictions; NOT re-evaluated
+NN4MGF_archived,official,8,1:5,5,0.028016951793947587,2.8016951793947587,0,0,complete,archived predictions; NOT re-evaluated
+NN4MGF_archived,official,8,1:8,8,0.08148458021314121,8.148458021314122,0,0,complete,archived predictions; NOT re-evaluated
+NN4MGF_archived,official,8,1:10,10,0.18908457746401747,18.908457746401748,0,0,complete,archived predictions; NOT re-evaluated

@@ -1,0 +1,22 @@
+{
+  "configuration": {
+    "real_domain": [
+      -0.5,
+      5.0
+    ],
+    "imaginary_abs_max": 5.0,
+    "bar_mixture": {
+      "general_complex": 0.5,
+      "exact_complex_diagonal": 0.2,
+      "near_complex_diagonal": 0.2,
+      "positive_real_diagonal": 0.1
+    },
+    "near_diagonal_noise_scale": 0.05
+  },
+  "actual_counts_per_bar_update": {
+    "general_complex": 1024,
+    "exact_complex_diagonal": 410,
+    "near_complex_diagonal": 410,
+    "positive_real_diagonal": 204
+  }
+}

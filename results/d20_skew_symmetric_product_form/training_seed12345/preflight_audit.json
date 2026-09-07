@@ -1,0 +1,19 @@
+{
+  "seed": 12345,
+  "output_shape": [
+    4,
+    21
+  ],
+  "jacobian_shape": [
+    4,
+    21,
+    20
+  ],
+  "jacobian_finite": true,
+  "loss_terms_finite": true,
+  "gradients_present_and_finite": true,
+  "interior_origin_error": 1.1548621071314795e-16,
+  "boundary_anchor_error": 9.39188966358397e-16,
+  "minimum_cauchy_denominator": 0.0017789210245496279,
+  "parameter_real_scalar_dof": 16388
+}
