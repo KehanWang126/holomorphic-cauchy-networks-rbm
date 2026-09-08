@@ -21,6 +21,9 @@ Degree 5. For 20D, the endpoint is step 25,000, Degree 8 is primary, and Degree 
 is retained only as a numerical diagnostic and historical comparison bridge.
 For 30D, the endpoint is step 50,000 and Degree 8 is primary; Degrees 5 and 6
 quantify low-degree inversion effects.
+For 50D, the endpoint is step 100,000 and Degree 8 is primary; Degree 5 is
+retained only as a numerical diagnostic. Legacy loading is enabled only for the
+exact archived endpoint whose SHA-256 is frozen in the public notebook.
 
 The 20D activation evaluator verifies six endpoints: Cauchy and complex tanh for
 seeds 12345, 22345, and 32345. It evaluates 120 points in total. A complete CPU
@@ -102,6 +105,28 @@ independent 35k-to-50k diagnostic table. The public notebook also exposes a
 consolidated clean-training path, but that path is not substituted for the
 archived endpoint. The later 50k-to-60k continuation and retrospective 29k/49k
 minima are excluded from the main result.
+
+### 50D main-experiment requirements
+
+A successful 50D run must:
+
+1. use seed 12345 and start from a fresh initialization;
+2. execute exactly 100,000 Adam updates with batches 512/64/64;
+3. expose BAR, boundary, and monotonicity branches to 51.2M, 6.4M, and 6.4M
+   sampled constraints, respectively;
+4. preserve Adam state when the learning rate changes after step 80,000;
+5. use sequential branch backward to control peak memory;
+6. report only the prespecified step-100,000 checkpoint;
+7. keep recovery checkpoints and exact tails outside model selection; and
+8. evaluate raw Degree-5/8 predictions with Degree 8 primary.
+
+The historical run identifies its endpoint with schema
+`d50_general_pointmatched100k_v1` and variant
+`d50_controlled_general_scaling_pure_general`. The released diagnostic endpoint
+has SHA-256
+`669c9bc1b2188241e47e78ee5a23bfaa690a86233529b8eef340daf11cf79b0a`.
+The original 80k-to-100k diagnostic is retained only as provenance for the fixed
+100k endpoint; it is not used for checkpoint selection.
 
 ## Talbot diagnostic
 
