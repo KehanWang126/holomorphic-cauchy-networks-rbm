@@ -1,0 +1,7 @@
+{
+  "trainable_real_scalar_dof": 18308,
+  "complex_parameter_count": 9026,
+  "real_parameter_count": 256,
+  "source": "public notebook smoke test and architecture formula",
+  "complex_parameter_count_convention": "each complex scalar counts as two real degrees of freedom"
+}

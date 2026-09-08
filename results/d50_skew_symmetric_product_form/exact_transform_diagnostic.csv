@@ -1,0 +1,21 @@
+degree,t,true_value,raw_prediction,relative_error,invalid_flag,overshoot_flag,nonpositive_flag,evaluation_source
+5,1,0.9999999998903533,-0.6627954053398113,1.6627954054124847,True,False,True,stock mpmath Talbot on the analytic transform
+5,2,0.9993043562578768,0.4801062303886132,0.5195595542218183,False,False,False,stock mpmath Talbot on the analytic transform
+5,3,0.9221879555762227,0.8196637655600447,0.11117493933448354,False,False,False,stock mpmath Talbot on the analytic transform
+5,4,0.6031799363812234,0.5813323285257801,0.03622071381637449,False,False,False,stock mpmath Talbot on the analytic transform
+5,5,0.2868314367931823,0.3087273138944139,0.0763370896371427,False,False,False,stock mpmath Talbot on the analytic transform
+5,6,0.11670095680499243,0.12774604891199873,0.09464440060643782,False,False,False,stock mpmath Talbot on the analytic transform
+5,7,0.04459017950344682,0.04777344348266421,0.07138935107833165,False,False,False,stock mpmath Talbot on the analytic transform
+5,8,0.016636012824886498,0.016677278168114984,0.0024804827732974235,False,False,False,stock mpmath Talbot on the analytic transform
+5,9,0.006151870264553492,0.005425062123855337,0.11814425685891923,False,False,False,stock mpmath Talbot on the analytic transform
+5,10,0.00226747340805287,0.0015752773197547053,0.3052719762180448,False,False,False,stock mpmath Talbot on the analytic transform
+8,1,0.9999999998903533,1.0044173809601915,0.004417381070322596,True,True,False,stock mpmath Talbot on the analytic transform
+8,2,0.9993043562578768,0.9809174763803763,0.01839967949940137,False,False,False,stock mpmath Talbot on the analytic transform
+8,3,0.9221879555762227,0.9236537717618343,0.0015894982977691194,False,False,False,stock mpmath Talbot on the analytic transform
+8,4,0.6031799363812234,0.6020943776369276,0.0017997262157102404,False,False,False,stock mpmath Talbot on the analytic transform
+8,5,0.2868314367931823,0.2878590424371352,0.0035826116392321428,False,False,False,stock mpmath Talbot on the analytic transform
+8,6,0.11670095680499243,0.116845593004399,0.0012393745806923036,False,False,False,stock mpmath Talbot on the analytic transform
+8,7,0.04459017950344682,0.04452023371344849,0.001568636654466162,False,False,False,stock mpmath Talbot on the analytic transform
+8,8,0.016636012824886498,0.01655446319379017,0.004901993762251417,False,False,False,stock mpmath Talbot on the analytic transform
+8,9,0.006151870264553492,0.006094217922963496,0.009371514533097907,False,False,False,stock mpmath Talbot on the analytic transform
+8,10,0.00226747340805287,0.0022359763147308254,0.013890832505547183,False,False,False,stock mpmath Talbot on the analytic transform

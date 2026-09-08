@@ -1,0 +1,25 @@
+{
+  "source_archive_sha256": {
+    "training_metadata": "9dc5c9ba352c4728acc9f0ce84c2db4e7014f64d9916ea3aec46129f898d5092",
+    "training_checkpoints": "7a4b698475eb1bf9d2010167a94655e1a30882fcb19d7f9219f818d623d150b4",
+    "tail_diagnostic": "5da4401e7b528046140bea5b876c55056a5b1e5b61af5c5988bb77c2632eca3d"
+  },
+  "released_checkpoint": {
+    "historical_name": "d50_general_step100000.pt",
+    "sha256": "669c9bc1b2188241e47e78ee5a23bfaa690a86233529b8eef340daf11cf79b0a",
+    "used_by_tail_diagnostic": true,
+    "sha256_unchanged_during_diagnostic": true
+  },
+  "separate_final_export": {
+    "historical_name": "cauchy_product_form_d50_general_pointmatched_step100000.pt",
+    "sha256": "4c1a14171e774cff2ef6925cda9aaa9e7c3fd58af6d7ed97892e23abd92833c8",
+    "released_as_duplicate": false,
+    "storage_equivalence_check": "all 77 serialized tensor storage blocks are byte-identical to the released checkpoint"
+  },
+  "release_assembly": {
+    "model_inference_rerun": false,
+    "pointwise_source": "stored independent 80k-to-100k fixed-checkpoint diagnostic",
+    "local_paths_removed": true,
+    "intermediate_or_best_checkpoints_released": false
+  }
+}
