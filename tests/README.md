@@ -30,3 +30,24 @@ python tests/test_d30_release.py
 This checks every manifest entry, the exact endpoint hash, the complete
 Degree-5/6/8 pointwise grid, training-history agreement, reported MREs, the
 Degree-8 Talbot floor, and the recorded public smoke result.
+
+Run the static 50D notebook release checks with:
+
+```bash
+python tests/test_d50_notebook.py
+```
+
+This verifies the fixed seed and 100k endpoint, matched 64M sample budget,
+18,308-real-scalar model size, 80k learning-rate switch, Degree-5/8 evaluation
+policy, clean cell state, hash-gated historical loading, the frozen endpoint
+SHA-256, and absence of the old 50k-to-86k retrospective selection path.
+
+Verify the committed 50D result bundle without importing PyTorch:
+
+```bash
+python tests/test_d50_release.py
+```
+
+This checks every manifest entry, the exact endpoint hash and serialized schema,
+the complete Degree-5/8 pointwise grid, training history, raw-invalid flags,
+reported MREs, the Degree-8 Talbot floor, and the recorded public smoke result.
