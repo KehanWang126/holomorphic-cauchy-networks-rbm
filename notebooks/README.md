@@ -16,6 +16,11 @@ experiment:
   intermediate checkpoints, and Degree-5/6/8 diagnostics with Degree 8 primary.
   Its evaluator also accepts the hash-verified historical point-matched 50k
   checkpoint committed with the audited result.
+- `d50_skew_symmetric_product_form.ipynb`: 50D coordinate-shared HCN, seed
+  12345, fixed step 100,000, matched 64M sampled-constraint budget, recovery-only
+  intermediate checkpoints, and Degree-5/8 diagnostics with Degree 8 primary.
+  Its evaluator accepts only the hash-verified historical step-100,000 endpoint
+  committed with the audited result bundle.
 
 The 20D filename above is the sole retained main-experiment version. Earlier
 duplicate drafts and the draft containing the invalid `PARAMS.d` audit access are
