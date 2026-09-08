@@ -31,7 +31,6 @@ notebooks/
   d50_skew_symmetric_product_form.ipynb
 experiments/
   d20_activation_ablation/
-  d30_skew_symmetric_product_form/
     d20_activation_ablation_evaluate.ipynb
     checkpoints/
     reference/
