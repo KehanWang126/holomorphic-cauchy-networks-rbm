@@ -12,7 +12,7 @@
     {
       "method": "Cauchy",
       "seed": 12345,
-      "path": "checkpoints/cauchy_seed12345_step25000.pt",
+      "path": "../../experiments/d20_activation_ablation/checkpoints/cauchy_seed12345_step25000.pt",
       "sha256": "78e4301ea88ae808bfca5c503f243dbd2a7b6acd405e494ca033e8797c5b37f0",
       "source": "checkpoint_step25000.pt",
       "format": "public",
@@ -21,7 +21,7 @@
     {
       "method": "Cauchy",
       "seed": 22345,
-      "path": "checkpoints/cauchy_seed22345_step25000.pt",
+      "path": "../../experiments/d20_activation_ablation/checkpoints/cauchy_seed22345_step25000.pt",
       "sha256": "7a9e944407110f6fca9c4f812d7118b9834b80ee0d7438f56ddcb686188a0bd8",
       "source": "step025000(1).pt",
       "format": "legacy",
@@ -30,11 +30,12 @@
     {
       "method": "Cauchy",
       "seed": 32345,
-      "path": "checkpoints/cauchy_seed32345_step25000.pt",
+      "path": "../../experiments/d20_activation_ablation/checkpoints/cauchy_seed32345_step25000.pt",
       "sha256": "24fa37cb2291a616bcaadd3529cb562e49d2cb8952b4d32682d80e199be49d84",
       "source": "step025000(2).pt",
       "format": "legacy",
       "role": "retained historical run"
     }
-  ]
+  ],
+  "path_base": "relative to this manifest directory"
 }

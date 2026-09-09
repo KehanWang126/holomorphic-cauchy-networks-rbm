@@ -17,7 +17,9 @@ comparison, but it is not the primary reported protocol.
 
 ## Files
 
-- `checkpoints/`: the three original fixed endpoint weight files;
+- The three Cauchy endpoint weights are stored once in
+  [`../../experiments/d20_activation_ablation/checkpoints/`](../../experiments/d20_activation_ablation/checkpoints/),
+  shared by the main experiment and activation ablation;
 - `checkpoint_manifest.json`: seed, endpoint, provenance, and SHA-256 identity;
 - `pointwise.csv`: 60 recomputed points (3 seeds × 2 degrees × 10 values of `t`);
 - `per_seed_summary.csv`: each seed and interval separately;
