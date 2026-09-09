@@ -1,12 +1,16 @@
 # Holomorphic Cauchy Networks for Reflected Brownian Motion
 
+
 This repository contains the reproducibility code and audited fixed-checkpoint
 artifacts for Holomorphic Cauchy Networks (HCNs) applied to stationary tail
 estimation for reflected Brownian motion (RBM).
 
+
 ## Audited release scope
 
+
 The current release contains six experiments:
+
 
 1. a 2D skew-symmetric product-form benchmark;
 2. a 2D Harrison non-product benchmark;
@@ -15,12 +19,15 @@ The current release contains six experiments:
 5. the 30D skew-symmetric product-form HCN main experiment; and
 6. the 50D skew-symmetric product-form HCN main experiment.
 
+
 Every reported model is evaluated at a prespecified endpoint. No ground-truth
 tail probability is used for training, checkpoint selection, or seed selection.
 Predictions are reported without clipping, and invalid or nonfinite outcomes are
 recorded rather than silently discarded.
 
+
 ## Repository layout
+
 
 ```text
 notebooks/
@@ -41,10 +48,12 @@ results/
   d20_activation_ablation/
   d30_skew_symmetric_product_form/
   d50_skew_symmetric_product_form/
+  d50_late_training_stability/
 docs/
   reproducibility.md
   validation_checklist.md
 ```
+
 
 The training notebooks are deliberately self-contained so that a reviewer can
 inspect the benchmark, architecture, sampler, BAR objective, optimizer protocol,
@@ -52,9 +61,12 @@ and numerical inversion without following hidden project imports. The 20D
 activation ablation is a separate evaluation-only package containing the six
 frozen endpoint weights required for that comparison.
 
+
 ## Environment
 
+
 Create the reference environment with Conda:
+
 
 ```bash
 conda env create -f environment.yml
@@ -62,14 +74,18 @@ conda activate hcn-rbm
 jupyter lab
 ```
 
+
 The audited training environment used Python 3.10.20, PyTorch 2.5.1 with CUDA
 12.1, and an NVIDIA GeForce RTX 4080 Laptop GPU. The 20D frozen-weight evaluator
 also passed on CPU with PyTorch 2.5.1 and mpmath 1.3.0.
 
+
 ## Running the notebooks
+
 
 The 2D, 20D, 30D, and 50D main notebooks default to a safe smoke test. In their
 configuration cell, choose the documented mode:
+
 
 - `smoke`: structural checks and two tiny optimizer steps;
 - `train` (2D): the fixed 15,000-step protocol;
@@ -78,33 +94,43 @@ configuration cell, choose the documented mode:
 - `train` (30D/50D): the fixed 50,000- or 100,000-step protocol;
 - `evaluate`: evaluate a completed run at the fixed endpoint.
 
+
 The 30D release result uses the archived historical step-50,000 checkpoint. Its
 evaluator accepts that audited legacy schema, verifies the published SHA-256,
 and always writes recomputed results to a new output directory.
+
 
 The 50D release result uses the archived historical step-100,000 checkpoint. Its
 evaluator accepts that legacy schema only after verifying the frozen SHA-256 and
 writes recomputed evaluations to a new output directory.
 
+
 The 20D activation ablation never trains. From the repository root, run:
+
 
 ```bash
 cd experiments/d20_activation_ablation
 jupyter lab d20_activation_ablation_evaluate.ipynb
 ```
 
+
 Then select **Restart Kernel and Run All**. Its audited default is CPU and it
 evaluates all six bundled step-25,000 checkpoints.
 
+
 The same fixed-weight checks can be run noninteractively from the repository root:
+
 
 ```bash
 python tests/test_d20_activation_ablation.py
 ```
 
+
 ## Audited 2D results
 
+
 The fixed step-15,000 Degree-5 results are:
+
 
 | Benchmark and range | HCN MRE | NN4MGF reference MRE |
 |---|---:|---:|
@@ -130,8 +156,9 @@ all three seeds in percentage points.
 | \(t=1{:}10\) | 12.271% ± 3.690% | 18.908% |
 
 Degree 5 is retained only as a numerical diagnostic and historical comparison
-bridge. The main-result directory contains all 60 recomputed HCN points, the
-three endpoint weights, aggregate tables, exact-transform diagnostics, and a
+bridge. The main-result directory contains all 60 recomputed HCN points,
+references to the three shared endpoint weights, aggregate tables, exact-transform
+diagnostics, and a
 SHA-256 manifest.
 
 ## Audited 20D activation ablation
@@ -186,6 +213,12 @@ The Degree-8 prediction at `t=2` is `1.0004776`, a slight overshoot. It is
 reported raw, marked invalid, and retained in every MRE. Degree 5 is diagnostic
 only; its analytic-transform Talbot inversion is visibly unstable at low degree
 for this 50D transform.
+
+## Checkpoint inventory
+
+The repository stores each primary or ablation endpoint weight once. It contains 10 unique endpoint checkpoints: two 2D endpoints, six 20D Cauchy/complex-tanh endpoints, one 30D endpoint, and one 50D endpoint. The 20D main-result manifest references the shared Cauchy weights under `experiments/d20_activation_ablation/checkpoints/` instead of duplicating them.
+
+For the 50D within-run late-training stability diagnostic, `results/d50_late_training_stability/` adds checkpoints at steps 90k, 92k, 94k, 96k, and 98k. The step-100k endpoint is reused from `results/d50_skew_symmetric_product_form/checkpoint_step100000.pt`. Thus the repository contains 15 checkpoint files in total while the late-trajectory tables cover steps 90k through 100k. These six checkpoints document within-run late-training behavior; they are not independent seeds.
 
 ## Baseline provenance
 
