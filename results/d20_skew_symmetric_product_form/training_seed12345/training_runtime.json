@@ -3,6 +3,6 @@
   "training_wall_clock_seconds": 97613.57402900001,
   "peak_gpu_allocated_bytes": 11309616640,
   "peak_gpu_reserved_bytes": 12218007552,
-  "checkpoint": "../checkpoints/cauchy_seed12345_step25000.pt",
+  "checkpoint": "../../../experiments/d20_activation_ablation/checkpoints/cauchy_seed12345_step25000.pt",
   "checkpoint_sha256": "78e4301ea88ae808bfca5c503f243dbd2a7b6acd405e494ca033e8797c5b37f0"
 }
