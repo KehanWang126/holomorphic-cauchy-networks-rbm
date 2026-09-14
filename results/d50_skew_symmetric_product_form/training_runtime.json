@@ -1,5 +1,12 @@
 {
   "elapsed_seconds": 61132.74480390549,
   "elapsed_hours": 16.98131800108486,
-  "source": "cumulative elapsed_seconds in the historical step-100000 training record"
+  "source": "Last recorded session clock, not full-run cumulative time",
+  "observed_clock_segments": 5,
+  "recorded_segment_sum_seconds": 503093.93222665787,
+  "recorded_segment_sum_hours": 139.74831450740496,
+  "full_run_elapsed_hours": null,
+  "interpretation": "Sum of the last recorded elapsed_seconds in each of five monotone clock segments. This reconstructs recorded session time; equating it to complete runtime requires confirming each segment ended at its last logged step and no interval is omitted or duplicated.",
+  "user_context": "Author recalls three training segments; the archived history contains four clock resets. Preserve both facts pending reconciliation.",
+  "segments_file": "runtime_segments.csv"
 }

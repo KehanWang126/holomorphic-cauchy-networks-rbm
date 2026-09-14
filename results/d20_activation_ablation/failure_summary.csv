@@ -1,0 +1,3 @@
+method,attempted_runs,usable_runs,failed_seeds,classification
+Cauchy,3,3,,all three recorded runs usable
+tanh,3,2,22345,manuscript-reported catastrophic numerical failure; raw values retained
