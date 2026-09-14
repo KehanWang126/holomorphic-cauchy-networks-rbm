@@ -165,4 +165,4 @@ See [reproduction instructions](docs/reproducibility.md) and
 Use [benchmarks/](benchmarks/) to run HCN and pinned NN4MGF code on the same
 GPU at 20D and 30D. It provides smoke, profiling, and full-configuration modes.
 See [the Chinese handoff guide](benchmarks/给学长的运行说明.md) for commands.
-The guide distinguishes the public NN4MGF configuration from the paper schedule.
+The default comparison uses seed 12345 and the NN4MGF paper's 300,000-update schedule.

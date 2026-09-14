@@ -143,8 +143,9 @@ def worker(args):
                   torch=str(torch.__version__), numpy=np.__version__, mpmath=mpmath.__version__,
                   python=sys.version, cuda_runtime=torch.version.cuda,
                   measurement='CUDA synchronized update wall time; PyTorch allocator peaks',
-                  protocol='HCN fixed endpoint / NN4MGF published repository active configuration',
-                  full_paper_nn4mgf_schedule_reproduced=False)
+                  protocol='HCN fixed endpoint / NN4MGF paper Appendix A schedule',
+                  schedule_source='https://arxiv.org/html/2607.08091v1#A1',
+                  seed_provenance='New comparison seed; original NN4MGF seed not documented')
     try:
         report['source_lock'] = verify_sources()
         if args.device == 'cuda' and not torch.cuda.is_available():
@@ -169,7 +170,7 @@ def worker(args):
         if device == 'cuda': torch.cuda.manual_seed_all(args.seed)
         d=args.dimension
         warmup = args.warmup if args.mode=='profile' else 0
-        steps = (25000 if d==20 else 50000) if args.method=='hcn' else 100000
+        steps = (25000 if d==20 else 50000) if args.method=='hcn' else 300000
         if args.mode == 'smoke': steps=2
         if args.mode == 'profile': steps=args.steps+warmup
         meter=Meter(torch,warmup)
@@ -208,10 +209,12 @@ def worker(args):
             batch=64 if args.mode=='smoke' else 16384
             config=dict(lb=-5,ub=.5,imag_lb=-5,imag_ub=5,excluded_boxes=[],full_gradient=False,
                         theta_eval=None,batch_size=batch,max_grad_sample=4 if args.mode=='smoke' else 1024,
-                        max_boundary_grad_sample=4 if args.mode=='smoke' else 128,train_freq=2,
+                        max_boundary_grad_sample=4 if args.mode=='smoke' else 128,train_freq=1,
                         joint_rounds=[dict(epochs=steps,lr=1e-3,T0=100000,eta_min=1e-4)],
                         individual_rounds=None,lam_monotone=10.,lam_CR=10.,lam_growth=0.,
                         lam_zero_anchor=.1,lam_boundary_consistent=10.,anchor_set=None)
+            if args.mode=='full':
+                config.update(json.loads((HERE/'nn4mgf_paper_config.json').read_text()))
             if args.nn_config:
                 overrides=json.loads(Path(args.nn_config).read_text())
                 allowed={'joint_rounds','train_freq','batch_size','max_grad_sample','max_boundary_grad_sample'}
@@ -256,7 +259,7 @@ def worker(args):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--mode',choices=['smoke','profile','full'],default='smoke')
-    p.add_argument('--dimensions',type=int,nargs='+',choices=[20,30],default=[20])
+    p.add_argument('--dimensions',type=int,nargs='+',choices=[20,30],default=[20,30])
     p.add_argument('--methods',nargs='+',choices=['hcn','nn4mgf'],default=['hcn','nn4mgf'])
     p.add_argument('--seeds',type=int,nargs='+',default=[12345])
     p.add_argument('--device',choices=['cpu','cuda'],default='cuda')
