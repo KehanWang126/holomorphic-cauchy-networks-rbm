@@ -1,0 +1,1270 @@
+import os
+import math
+import cmath
+from typing import Callable, List, Literal, Optional, Tuple
+import mpmath
+import numpy as np
+import pandas as pd
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.optim.lr_scheduler import ExponentialLR
+from torch.quasirandom import SobolEngine
+import matplotlib.pyplot as plt
+from tqdm import tqdm
+
+ComplexFn = Callable[[complex], complex]
+
+torch.set_default_dtype(torch.float64)
+
+class FourierFeatures(nn.Module):
+    """
+    Fourier features for complex input z \in C^{d} (shape: (N,d)).
+
+    - Per-dim features: sin/cos on Re(z_k), Im(z_k)
+    - Optional pairwise features (on Re(z_i)+Re(z_j)) for cross-dim interactions
+      (implemented safely without broadcasting hacks)
+
+    Output: real features of shape (N, feat_dim)
+    """
+    def __init__(
+        self,
+        d: int,
+        num_features: int = 32,     # per-dim budget; must be even
+        fmin: float = 0.5,
+        fmax_x: float = 6.0,        # max freq for real part in normalized coords
+        fmax_y: float = 12.0,       # max freq for imag part in normalized coords (often higher)
+        use_pairwise: bool = True,
+        dtype: torch.dtype = torch.float64,
+    ):
+        super().__init__()
+        if num_features % 2 != 0:
+            raise ValueError("num_features must be even")
+        self.d = d
+        self.num_features = num_features
+        self.half = num_features // 2
+        self.use_pairwise = use_pairwise
+
+        # frequencies are defined on normalized coords in [-1,1]
+        freqs_x = torch.logspace(fmin, fmax_x, self.half, dtype=dtype) #torch.logspace(math.log10(fmin), math.log10(fmax_x), self.half, dtype=dtype)
+        freqs_y = torch.logspace(fmin, fmax_y, self.half, dtype=dtype) #torch.logspace(math.log10(fmin), math.log10(fmax_y), self.half, dtype=dtype)
+        self.register_buffer("freqs_x", freqs_x)  # (half,)
+        self.register_buffer("freqs_y", freqs_y)  # (half,)
+
+        # number of pairwise (i<j)
+        self.num_pairs = (d * (d - 1)) // 2 if use_pairwise else 0
+
+    def feat_dim(self) -> int:
+        # per dim: sin/cos for x + sin/cos for y => 4*half = 2*num_features
+        per_dim = self.d * (4 * self.half)
+
+        # per pair: sin/cos of (x_i + x_j) => 2*half = num_features
+        per_pair = self.num_pairs * (2 * self.half)
+
+        return per_dim + per_pair
+
+    def forward(self, z_norm: torch.Tensor) -> torch.Tensor:
+        """
+        z_norm: complex tensor (N,d), assumed already normalized to [-1,1] box.
+        returns: real tensor (N, feat_dim)
+        """
+        N, d = z_norm.shape
+        assert d == self.d
+
+        x = z_norm.real  # (N,d)
+        y = z_norm.imag  # (N,d)
+
+        # ---- per-dim features ----
+        # shapes: (N,d,half)
+        xb = 2.0 * math.pi * x.unsqueeze(-1) * self.freqs_x.view(1, 1, -1)
+        yb = 2.0 * math.pi * y.unsqueeze(-1) * self.freqs_y.view(1, 1, -1)
+
+        per_dim_feats = torch.cat(
+            [torch.sin(xb), torch.cos(xb), torch.sin(yb), torch.cos(yb)],
+            dim=-1,  # (N,d,4*half)
+        ).reshape(N, -1)  # (N, d*(4*half))
+
+        if not self.use_pairwise or self.d <= 1:
+            return per_dim_feats
+
+        # ---- pairwise interaction features (real-real sums) ----
+        pair_feats = []
+        # each pair term gives (N, 2*half), and we concat over pairs -> (N, num_pairs*(2*half))
+        for i in range(self.d):
+            for j in range(i + 1, self.d):
+                pair = (x[:, i] + x[:, j]).unsqueeze(-1)  # (N,1)
+                pb = 2.0 * math.pi * pair * self.freqs_x.view(1, -1)  # (N,half) use freqs_x
+                pair_feats.append(torch.sin(pb))
+                pair_feats.append(torch.cos(pb))
+
+        pair_feats = torch.cat(pair_feats, dim=-1)  # (N, num_pairs*(2*half))
+
+        return torch.cat([per_dim_feats, pair_feats], dim=-1)
+
+class LogGMFNet(nn.Module):
+    def __init__(
+        self,
+        d: int,
+        ff_m: int = 64,
+        dim_embed_dim: int = 64,#32,#128,#64,
+        hidden_dim: int = 128,
+        scale_by_zero: bool = True,
+        x_min: float = -5.0,
+        x_max: float = 0.0,
+        y_min: float = -16.0,
+        y_max: float = 16.0,
+        fmin: float = 1e-2,
+        fmax_x: float = 1.5,
+        fmax_y: float = 2.0,
+        use_boundary_embed: bool = False,
+        boundary_embed_dim: int = 64,#128,#64,
+        dtype: torch.dtype = torch.float64,
+    ):
+        super().__init__()
+        self.d = d
+        self.scale_by_zero = scale_by_zero
+        self.X_MIN, self.X_MAX = x_min, x_max
+        self.Y_MIN, self.Y_MAX = y_min, y_max
+        self.use_boundary_embed = use_boundary_embed
+        self.dtype = dtype
+        self.first_hidden_dim = hidden_dim
+
+        if False: #d <= 20:
+            fmin = fmin
+            fmax_x=1.5
+            fmax_y=2.5
+        else:
+            fmin = -4
+            fmax_x=0.5
+            fmax_y=1.0
+
+        # Shared 1D Fourier feature map
+        self.ff = FourierFeatures(
+            d=1,
+            num_features=ff_m,
+            fmin=fmin,
+            fmax_x=fmax_x,
+            fmax_y=fmax_y,
+            use_pairwise=False,
+            dtype=dtype,
+        )
+        coord_feat_dim = self.ff.feat_dim()
+
+        # Coordinate-index embedding inside the reduced/input dimension
+        self.dim_embedding = nn.Embedding(d, dim_embed_dim)
+
+        # Boundary-index embedding: which boundary function are we learning?
+        # For the boundary network used inside MGFNet, the boundary index ranges over {0, ..., d}
+        # where original full dimension is (self.d + 1), so allocating self.d + 1 is right.
+        if self.use_boundary_embed:
+            self.boundary_embedding = nn.Embedding(d + 1, boundary_embed_dim)
+
+        shared_in_dim = coord_feat_dim + dim_embed_dim
+        if self.use_boundary_embed:
+            shared_in_dim += boundary_embed_dim
+
+        self.coord_net = nn.Sequential(
+            nn.Linear(shared_in_dim, self.first_hidden_dim, dtype=dtype),
+            nn.SiLU(),
+            nn.Linear(self.first_hidden_dim, hidden_dim, dtype=dtype),
+            nn.SiLU(),
+            nn.Linear(hidden_dim, 2, dtype=dtype),   # per-coordinate contribution: (Re, Im)
+        )
+
+        self.bias = nn.Parameter(torch.zeros(1, 2, dtype=dtype))
+
+    def _normalize(self, z: torch.Tensor) -> torch.Tensor:
+        xr = 2.0 * (z.real - self.X_MIN) / (self.X_MAX - self.X_MIN) - 1.0
+        yi = 2.0 * (z.imag - self.Y_MIN) / (self.Y_MAX - self.Y_MIN) - 1.0
+        return torch.complex(xr, yi)
+
+    def _coordwise_features(self, z_norm: torch.Tensor) -> torch.Tensor:
+        """
+        z_norm: (N, d) complex, already normalized
+        returns: (N, d, coord_feat_dim) real
+        """
+        N, D = z_norm.shape
+        assert D == self.d
+
+        z_flat = z_norm.reshape(N * D, 1)      # (N*d, 1) complex
+        feats_flat = self.ff(z_flat)           # (N*d, coord_feat_dim) real
+        feats = feats_flat.reshape(N, D, -1)   # (N, d, coord_feat_dim)
+        return feats
+
+    def _raw_forward_normed(self, z_norm: torch.Tensor, idx=None) -> torch.Tensor:
+        """
+        z_norm: (N, d) complex, already normalized
+        idx:
+            - None if no boundary embedding is used
+            - int / 0-d tensor / shape-(N,) tensor boundary indices if boundary embedding is used
+        returns: (N, 1) complex
+        """
+        N, D = z_norm.shape
+        assert D == self.d
+
+        # (1) Fourier features for each coordinate
+        coord_feats = self._coordwise_features(z_norm)   # (N, d, coord_feat_dim)
+
+        # (2) Embedding for coordinate index within the current input
+        dim_ids = torch.arange(D, device=z_norm.device)                  # (d,)
+        dim_emb = self.dim_embedding(dim_ids)                            # (d, dim_embed_dim)
+        dim_emb = dim_emb.to(coord_feats.dtype)
+        dim_emb = dim_emb.unsqueeze(0).expand(N, -1, -1)                 # (N, d, dim_embed_dim)
+
+        pieces = [coord_feats, dim_emb]
+
+        # (3) Optional boundary-id embedding: same boundary-id attached to every coordinate
+        if self.use_boundary_embed:
+            if idx is None:
+                raise ValueError("idx must be provided when use_boundary_embed=True")
+
+            if not torch.is_tensor(idx):
+                idx = torch.full((N,), int(idx), device=z_norm.device, dtype=torch.long)
+            else:
+                idx = idx.to(device=z_norm.device, dtype=torch.long)
+                if idx.ndim == 0:
+                    idx = idx.expand(N)
+                elif idx.ndim == 1:
+                    if idx.shape[0] != N:
+                        raise ValueError(f"idx has shape {idx.shape}, expected ({N},)")
+                else:
+                    raise ValueError("idx must be a scalar or a 1D tensor")
+
+            boundary_emb = self.boundary_embedding(idx)                  # (N, boundary_embed_dim)
+            boundary_emb = boundary_emb.to(coord_feats.dtype)
+            boundary_emb = boundary_emb.unsqueeze(1).expand(-1, D, -1)   # (N, d, boundary_embed_dim)
+            pieces.append(boundary_emb)
+
+        coord_input = torch.cat(pieces, dim=-1)                          # (N, d, shared_in_dim)
+
+        # Shared decision rule across all coordinates
+        coord_out = self.coord_net(coord_input)                          # (N, d, 2)
+
+        # Additive aggregation
+        out = coord_out.sum(dim=1)                                       # (N, 2)
+        out = out + self.bias                                            # (N, 2)
+
+        out = torch.complex(out[:, 0:1], out[:, 1:2])                    # (N, 1)
+        return out
+
+    def forward(self, z: torch.Tensor, idx=None) -> torch.Tensor:
+        """
+        z: (N, d) complex in original coordinates
+        idx: boundary index information if use_boundary_embed=True
+        returns: (N, 1) complex
+        """
+        z_norm = self._normalize(z)
+        raw = self._raw_forward_normed(z_norm, idx)
+
+        if self.scale_by_zero:
+            theta0 = torch.zeros_like(z)
+            z0_norm = self._normalize(theta0)
+            raw0 = self._raw_forward_normed(z0_norm, idx)
+            raw = raw - raw0
+
+        return raw
+
+class MGFNet(nn.Module):
+    def __init__(self, d, hidden_dim=64, x_min=-3, x_max=-0.5, y_min=-16, y_max=0):
+        super(MGFNet, self).__init__()
+        self.d = d
+
+        self.interior_network = LogGMFNet(
+            self.d,
+            ff_m=64,#128,
+            hidden_dim=hidden_dim,
+            scale_by_zero=True,
+            x_min=x_min,
+            x_max=x_max,
+            y_min=y_min,
+            y_max=y_max
+        )
+
+        self.boundary_network = LogGMFNet(
+            self.d - 1,
+            ff_m=64,#128,
+            hidden_dim=hidden_dim,
+            scale_by_zero=False,
+            x_min=x_min,
+            x_max=x_max,
+            y_min=y_min,
+            y_max=y_max,
+            use_boundary_embed=True
+        )
+
+        # retain_idx[i] = original column indices kept after deleting column i
+        retain_idx = []
+        for i in range(d):
+            keep = torch.cat([
+                torch.arange(i, dtype=torch.long),
+                torch.arange(i + 1, d, dtype=torch.long)
+            ])
+            retain_idx.append(keep)
+        self.register_buffer("retain_idx", torch.stack(retain_idx, dim=0))  # (d, d-1)
+
+    def forward(self, x, subset=None):
+        """
+        x: (N, d) complex
+        returns: (N, d+1) complex = [interior, boundary_0, ..., boundary_{d-1}]
+        """
+        N, D = x.shape
+        assert D == self.d
+
+        phi = self.interior_network(x)   # (N, 1)
+
+        phi_i = torch.zeros((N, self.d), dtype=phi.dtype, device=phi.device)
+
+        if subset is None:
+            subset = torch.arange(self.d, device=x.device, dtype=torch.long)
+        else:
+            subset = torch.as_tensor(subset, device=x.device, dtype=torch.long)
+
+        if subset.numel() == 0:
+            return torch.cat([phi, phi_i], dim=1)
+
+        # Process one boundary at a time to avoid materializing large intermediate tensors
+        for i in subset:
+            i_int = int(i.item())
+
+            # Remove coordinate i_int: shape (N, d-1)
+            reduced_x = torch.cat([x[:, :i_int], x[:, i_int + 1:]], dim=1)
+
+            # boundary_network expects a boundary index for each sample: shape (N,)
+            boundary_idx = torch.full(
+                (N,),
+                i_int,
+                dtype=torch.long,
+                device=x.device
+            )
+
+            # Output shape: (N, 1)
+            boundary_phi = self.boundary_network(reduced_x, boundary_idx)
+
+            # Store into the corresponding column
+            phi_i[:, i_int] = boundary_phi.squeeze(1)
+
+        return torch.cat([phi, phi_i], dim=1)
+
+class MGFTrainer:
+    def __init__(self, d, mu, sigma, R, hidden_dim = 128, dir = ".", x_min = -3, x_max = -0.5, y_min = -16, y_max = 0):
+        self.d = d
+        if torch.cuda.is_available():
+            self.device = "cuda"
+        else:
+            self.device = "cpu"
+        if mu is not None and sigma is not None and R is not None:
+            self.MU = torch.complex(mu, torch.zeros_like(mu)).to(device = self.device)
+            self.SIGMA = torch.complex(sigma, torch.zeros_like(sigma)).to(device = self.device)
+            self.R = torch.complex(R, torch.zeros_like(R)).to(device = self.device)
+        self.model = MGFNet(self.d, hidden_dim = hidden_dim).double().to(device = self.device)
+        self.dir = dir
+        self.engine = SobolEngine(dimension=d, scramble = True)
+    
+    # ---- Define monotonicity penalty ----
+    def monotonicity_penalty(
+        self,
+        model,
+        s,
+        max_grad_sample=1024,
+        max_boundary_grad_sample=128,
+        lambda_imag=0.1,
+        w_interior=1.0,
+        w_boundary=1.0,
+    ):
+        """
+        Enforces on the real axis:
+          - interior: Re(logM_int) monotone in each coordinate, Im(logM_int) ~ 0
+          - boundary i: Re(logM_bi) monotone in each active coordinate (d-1 of them), Im(logM_bi) ~ 0
+        """
+        s = s[torch.randperm(s.size(0), device=s.device)[:max_grad_sample]]
+        d = s.shape[1]
+
+        # ---------- interior ----------
+        x = s.real.clone().detach().requires_grad_(True)   # (N,d)
+        z0 = torch.complex(x, torch.zeros_like(x))
+        logM_all = model.interior_network(z0)                               # (N, d+1)
+        logM_int = logM_all[:, 0:1]                        # (N,1)
+
+        grad_int = torch.autograd.grad(logM_int.real.sum(), x, create_graph=True)[0]  # (N,d)
+        mono_int = torch.relu(-grad_int).mean()
+        imag_int = (logM_int.imag ** 2).mean()
+
+        # ---------- boundaries ----------
+        mono_b = 0.0
+        imag_b = 0.0
+        s = s[torch.randperm(s.size(0), device=s.device)[:max_boundary_grad_sample]]
+
+        for i in range(d):
+            x_sub = torch.cat([s.real[:, :i], s.real[:, i+1:]], dim=1).clone().detach().requires_grad_(True)
+            z_sub = torch.complex(x_sub, torch.zeros_like(x_sub))
+
+            logM_bi = model.boundary_network(z_sub, i).view(-1, 1)  # (N,1) complex
+
+            grad_bi = torch.autograd.grad(logM_bi.real.sum(), x_sub, create_graph=True)[0]  # (N,d-1)
+            mono_b = mono_b + torch.relu(-grad_bi).mean()
+            imag_b = imag_b + (logM_bi.imag ** 2).mean()
+        
+        mono_b = mono_b / max(d, 1)
+        imag_b = imag_b / max(d, 1)
+        
+        return (
+            w_interior * mono_int
+            + w_boundary * mono_b
+            + lambda_imag * (w_interior * imag_int + w_boundary * imag_b)
+        )
+
+    
+    def cauchy_riemann_penalty(self, model, z, max_grad_sample = 1024, max_boundary_grad_sample = 128, w_interior=1.0, w_boundary=1.0):
+        """
+        model(z): (N, d+1) complex, but boundary nets are f_i: C^{d-1} -> C
+        z: (N, d) complex
+        """
+        z = z[torch.randperm(z.size(0), device=z.device)[:max_grad_sample]]
+        # ---- interior ----
+        x = z.real.clone().detach().requires_grad_(True)  # (N,d)
+        y = z.imag.clone().detach().requires_grad_(True)  # (N,d)
+        z_xy = torch.complex(x, y)
+
+        out = model.interior_network(z_xy)  # (N, d+1)
+        f_int = out[:, 0:1]  # (N,1)
+        u, v = f_int.real, f_int.imag
+
+        u_x, u_y = torch.autograd.grad(u.sum(), (x, y), create_graph=True)
+        #u_y = torch.autograd.grad(u.sum(), y, create_graph=True)[0]
+        v_x, v_y = torch.autograd.grad(v.sum(), (x, y), create_graph=True)
+        #v_y = torch.autograd.grad(v.sum(), y, create_graph=True)[0]
+
+        cr_int = ((u_x - v_y) ** 2 + (u_y + v_x) ** 2).mean()
+
+        # ---- boundaries: f_i depends on (d-1) coords ----
+        cr_b = 0.0
+        z = z[torch.randperm(z.size(0), device=z.device)[:max_boundary_grad_sample]]
+        d = z.shape[1]
+
+        for i in range(d):
+            # build reduced complex input (N, d-1) as independent variables
+            x_sub = torch.cat([z.real[:, :i], z.real[:, i+1:]], dim=1).clone().detach().requires_grad_(True)
+            y_sub = torch.cat([z.imag[:, :i], z.imag[:, i+1:]], dim=1).clone().detach().requires_grad_(True)
+            z_sub = torch.complex(x_sub, y_sub)
+
+            f = model.boundary_network(z_sub, i)  # should output complex (N,1) or (N,)
+            f = f.view(-1, 1)
+
+            u, v = f.real, f.imag
+
+            u_x, u_y = torch.autograd.grad(u.sum(), (x_sub, y_sub), create_graph=True)  # (N,d-1)
+            #u_y = torch.autograd.grad(u.sum(), y_sub, create_graph=True)[0]
+            v_x, v_y = torch.autograd.grad(v.sum(), (x_sub, y_sub), create_graph=True)
+            #v_y = torch.autograd.grad(v.sum(), y_sub, create_graph=True)[0]
+
+            cr_i = ((u_x - v_y) ** 2 + (u_y + v_x) ** 2).mean()
+            cr_b = cr_b + cr_i
+
+        cr_b = cr_b / max(d, 1)
+        return w_interior * cr_int + w_boundary * cr_b
+
+    def boundary_consistency_penalty(self, model, theta):
+        """
+        Enforces interior restricted to theta_i=0 matches boundary network i in BAR.
+        theta: (N,d) complex
+        """
+        d = theta.shape[1]
+        loss = 0.0
+
+        max_sample = int(theta.shape[0] / 50)
+
+        for i in range(d):
+            theta_clamp = theta.clone()
+            theta_clamp = theta_clamp[torch.randperm(theta_clamp.size(0), device=theta.device)[:max_sample]]
+            ## TODO: Note that the theta_clamp only supports R such that R[i,i] = 1 and R[i,i-1] = -1
+            theta_clamp[:, 0:(i+1)] = theta_clamp[:,0:1]
+            theta_clamp[:, (i+1):] = 0
+            gamma_theta, gamma_i_theta = self.gamma(theta_clamp)
+            output = model(theta_clamp, subset = [i])
+            log_phi_theta = output[:, 0]
+            log_phi_i_theta = output[:, 1:]
+            lhs = torch.log(gamma_theta) + log_phi_theta
+            rhs = torch.log(gamma_i_theta[:,i]) + log_phi_i_theta[:,i]
+            loss += torch.mean(torch.abs(lhs - rhs) ** 2)
+        return loss / max(d, 1)
+    
+    def growth_penalty(self, model, s, C=1.0):
+        M = model(s)
+        bound = torch.exp(-C * torch.norm(s, dim=1))
+        bound = bound.unsqueeze(1)
+        return torch.mean(torch.relu(torch.abs(M) - bound)**2)
+
+    def antithetic_uniform(self, n, d):
+        n2 = n // 2
+        half = torch.rand(n2, d, device=self.device).double()
+        anti_half = 1 - half
+        ret = torch.cat([half, anti_half], dim = 0)
+        return ret
+    
+    def sample_vector(
+        self,
+        lb=-1, ub=0,
+        imag_lb=-0.5, imag_ub=0.5,
+        excluded_boxes=None,
+        batch_size=100,
+        max_tries=20,
+    ):
+        """
+        Sample complex vectors uniformly from:
+            real ∈ [lb, ub], imag ∈ [imag_lb, imag_ub]
+
+        while excluding ANY point that falls inside one of the excluded boxes.
+
+        excluded_boxes: list of tuples
+            [
+                (ex_lb, ex_ub, ex_imag_lb, ex_imag_ub),
+                ...
+            ]
+
+        Each exclusion applies coordinate-wise and jointly across dimensions:
+            real[:, j] ∈ [ex_lb, ex_ub] AND
+            imag[:, j] ∈ [ex_imag_lb, ex_imag_ub] for ALL j
+        """
+
+        if excluded_boxes is None:
+            excluded_boxes = []
+
+        samples = []
+        remaining = batch_size
+
+        for _ in range(max_tries):
+            if remaining <= 0:
+                break
+
+            # oversample to reduce rejection loops
+            n_try = int(remaining) #int(remaining * 1.5) + 16
+
+            kappa = 1 #max(1, self.d / 10) #self.d ** 0.5
+            real_lb_curr = ub - (ub - lb) * torch.rand(n_try, 1, device=self.device).double() ** (kappa)
+            real_ub_curr = ub
+            imag_bd = max(abs(imag_ub), abs(imag_lb)) * torch.rand(n_try, 1, device=self.device).double()
+            #real = (real_ub_curr - real_lb_curr) * self.antithetic_uniform(n_try, self.d) + real_lb_curr
+            real = (real_ub_curr - real_lb_curr) * torch.rand(n_try, self.d, device=self.device).double() + real_lb_curr
+#            real = (ub - lb) * self.engine.draw(n_try).to(self.device).double() + lb
+            #imag = 2 * imag_bd * self.antithetic_uniform(n_try, self.d) - imag_bd
+            imag = 2 * imag_bd * torch.rand(n_try, self.d, device=self.device).double() - imag_bd
+
+            # ---- exclusion mask ----
+            keep = torch.ones(n_try, dtype=torch.bool, device=self.device)
+
+            for (ex_lb, ex_ub, ex_imag_lb, ex_imag_ub) in excluded_boxes:
+                inside = (
+                    (real >= ex_lb) & (real <= ex_ub) &
+                    (imag >= ex_imag_lb) & (imag <= ex_imag_ub)
+                ).all(dim=1)
+                keep &= ~inside
+
+            real_keep = real[keep]
+            imag_keep = imag[keep]
+
+            take = min(real_keep.shape[0], remaining)
+            if take > 0:
+                samples.append(torch.complex(real_keep[:take], imag_keep[:take]))
+                remaining -= take
+
+        if remaining > 0:
+            raise RuntimeError(
+                "Failed to sample enough points outside excluded regions. "
+                "Reduce excluded volume or increase max_tries."
+            )
+
+        return torch.cat(samples, dim=0)
+    
+    ## Assume theta is a N x d matrix
+    def gamma(self, theta):
+        #gamma_theta = -(0.5 * torch.diagonal(theta @ self.SIGMA @ theta.T) + (theta @ self.MU).flatten()).flatten()
+        tmp = theta @ self.SIGMA              # (N, d)
+        quad = (tmp * theta).sum(dim=1)       # (N,) == diag(theta SIGMA theta^T)
+        lin = (theta @ self.MU).squeeze(-1)   # (N,)
+        gamma_theta = -(0.5 * quad + lin)     # (N,)
+        gamma_i_theta = theta @ self.R
+        return gamma_theta, gamma_i_theta
+
+    ## Phi_i_theta: N x d
+    def bar_loss(self, theta, phi_theta, phi_i_theta):
+        gamma_theta, gamma_i_theta = self.gamma(theta)
+        lhs = gamma_theta * phi_theta.flatten()
+        rhs = torch.sum(gamma_i_theta * phi_i_theta, dim = 1)
+        diff = (lhs - rhs)
+        #scale_factor = torch.maximum(torch.abs(lhs), torch.abs(rhs)) + 1e-12
+        #diff = diff / scale_factor
+        return torch.mean(torch.abs(diff) ** 2)
+    
+    def log_bar_loss(self, theta, log_phi_theta, log_phi_i_theta, train_idx = 0):
+        gamma_theta, gamma_i_theta = self.gamma(theta)
+        if train_idx == 0:
+            lhs = torch.log(gamma_theta) + log_phi_theta
+            rhs = torch.log(torch.sum(gamma_i_theta * torch.exp(log_phi_i_theta), dim = 1))
+        else:
+            lhs = torch.log(gamma_i_theta[:,train_idx-1]) + log_phi_i_theta[:,train_idx-1]
+            lhs_left = torch.sum(gamma_i_theta[:,:max(train_idx-1, 0)] * torch.exp(log_phi_i_theta[:,:max(train_idx-1, 0)]), dim = 1)
+            lhs_right = torch.sum(gamma_i_theta[:,train_idx:] * torch.exp(log_phi_i_theta[:,train_idx:]), dim = 1)
+            rhs = torch.log(gamma_theta * torch.exp(log_phi_theta) - lhs_left - lhs_right)
+        diff = (lhs - rhs)
+        return torch.mean(torch.abs(diff) ** 2)
+    
+    def bar_loss_normalized(
+        self,
+        theta,
+        log_phi_theta,     # (N,1) complex
+        log_phi_i_theta,   # (N,d) complex
+        eps=1e-12,
+        w_rel=1.0,         # keep a relative residual too (optional)
+    ):
+        gamma_theta, gamma_i_theta = self.gamma(theta)  # (N,), (N,d) complex
+
+        # log|gamma| part used only to form a safe alpha (no gradients needed)
+        with torch.no_grad():
+            log_abs_gamma_theta = torch.log(gamma_theta.abs().clamp_min(eps)).unsqueeze(1)  # (N,1)
+            log_abs_gamma_i = torch.log(gamma_i_theta.abs().clamp_min(eps))                 # (N,d)
+            term_logs = torch.cat(
+                [log_abs_gamma_theta + log_phi_theta.real,
+                 log_abs_gamma_i + log_phi_i_theta.real],
+                dim=1,
+            )  # (N,1+d)
+            alpha = term_logs.max(dim=1, keepdim=True)[0]  # (N,1)
+
+        # scaled BAR terms (stable)
+        lhs = gamma_theta.unsqueeze(1) * torch.exp(log_phi_theta - alpha)  # (N,1) complex
+        rhs = torch.sum(
+            gamma_i_theta * torch.exp(log_phi_i_theta - alpha),
+            dim=1,
+            keepdim=True,
+        )  # (N,1) complex
+
+        # ---- log-ratio residual: log(lhs) - log(rhs) ----
+        # Avoid log(0) by adding eps in magnitude (complex-safe)
+        lhs_safe = lhs + eps
+        rhs_safe = rhs + eps
+#        log_resid = torch.log(lhs_safe) - torch.log(rhs_safe)  # (N,1) complex
+#        loss = log_resid.abs().mean()
+        resid = (lhs - rhs).abs() / (lhs.abs() + rhs.abs() + eps)
+        loss = (resid ** 2).mean()
+
+        # ---- optional relative residual (helps early training) ----
+#        if w_rel > 0:
+#            rel = (lhs - rhs).abs() / (lhs.abs() + rhs.abs() + eps)
+#            loss_rel = (rel**2).mean()
+#            return loss_log + w_rel * loss_rel
+
+        return loss
+    
+    def train_from_target(self, target_mgf_func, full_gradient = False, theta_eval = None, lb = -1, ub = 0, imag_lb=-0.5, imag_ub=0.5, batch_size = 500, num_epochs = 10000, init_lr = 1e-3, lam_monotone = 0.1, lam_CR = 1e-3, lam_growth = 1e-4):
+        if full_gradient:
+            assert theta_eval is not None
+        optimizer = optim.AdamW(self.model.parameters(), lr = init_lr)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs, eta_min=init_lr * 0.02)
+#        scheduler = ExponentialLR(optimizer, gamma=0.99)
+#        scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+#            optimizer,
+#            T_0=100,       # number of steps before first restart
+#            T_mult=1,     # how much T increases after restart
+#            eta_min=1e-6  # minimum LR
+#        )
+        loss_arr = []
+        log_loss_arr = []
+        loss_rel_arr = []
+        loss_cr_arr = []
+        for epoch in tqdm(range(num_epochs)):
+            if full_gradient:
+                theta = theta_eval.clone()
+                theta = theta.to(device = self.device)
+            else:
+                theta = self.sample_vector(lb = lb, ub = ub, imag_lb=imag_lb, imag_ub=imag_ub, batch_size = batch_size)
+            # if theta_eval is not None:
+            #     anchors = theta_eval.clone()
+            #     N = anchors.shape[0]
+            #     idx = torch.randint(0, N, size=(batch_size,), device=anchors.device)
+            #     anchors = anchors[idx]
+            #     anchors = anchors.to(device = self.device)
+            #     theta = torch.cat([theta, anchors], dim = 0)
+            output = self.model(theta)
+            log_phi_theta = output[:,0].view((-1, 1))
+            phi_theta = torch.exp(log_phi_theta)
+            log_phi_i_theta = output[:,1:].view((-1, self.d))
+            phi_i_theta = torch.exp(log_phi_i_theta)
+            phi_theta_true = target_mgf_func(theta)
+            loss = torch.mean(torch.abs(log_phi_theta - torch.log(phi_theta_true)) ** 2)
+            log_loss_arr.append(loss.item())
+            loss_rel = torch.mean(torch.abs(phi_theta - phi_theta_true) / torch.abs(phi_theta_true))
+            loss_rel_arr.append(loss_rel.item())
+#            loss = torch.mean(torch.abs(phi_theta - phi_theta_true) ** 2)
+            if lam_monotone > 0:
+                loss += lam_monotone * self.monotonicity_penalty(self.model, theta)
+            if lam_CR > 0:
+                loss_cr = self.cauchy_riemann_penalty(self.model, theta)
+                loss_cr_arr.append(loss_cr.item())
+                loss += lam_CR * loss_cr
+            if lam_growth > 0:
+                loss += lam_growth * self.growth_penalty(self.model, theta)
+            if torch.isnan(loss):
+                print("NaN produced in training.")
+                assert False
+            loss_arr.append(loss.item())
+            optimizer.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+            optimizer.step()
+            scheduler.step()
+
+        ## Evaluation
+        plt.plot(loss_arr)
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        #plt.yscale("log")
+        plt.title(f"{loss_arr[-1]:.2e}")
+        plt.savefig(f"Plots/{self.dir}/loss.png")
+        plt.clf()
+        plt.close()
+        
+        plt.plot(log_loss_arr)
+        plt.xlabel("Epoch")
+        plt.ylabel("Log MSE")
+        #plt.yscale("log")
+        plt.title(f"{log_loss_arr[-1]:.2e}")
+        plt.savefig(f"Plots/{self.dir}/log_loss.png")
+        plt.clf()
+        plt.close()
+        
+        plt.plot(loss_rel_arr)
+        plt.xlabel("Epoch")
+        plt.ylabel("Relative Error")
+        #plt.yscale("log")
+        plt.title(f"{loss_rel_arr[-1]:.2e}")
+        plt.savefig(f"Plots/{self.dir}/rel_loss.png")
+        plt.clf()
+        plt.close()
+        
+        plt.plot(loss_cr_arr)
+        plt.xlabel("Epoch")
+        plt.ylabel("CR Error")
+        #plt.yscale("log")
+        plt.title(f"{loss_cr_arr[-1]:.2e}")
+        plt.savefig(f"Plots/{self.dir}/cr_loss.png")
+        plt.clf()
+        plt.close()
+    
+    def train(
+        self,
+        lb=-1, ub=0, cutoff=0, imag_lb=-0.5, imag_ub=0.5,
+        excluded_boxes = None,
+        full_gradient=False, theta_eval=None,
+        batch_size=500,
+        max_grad_sample=1024,
+        max_boundary_grad_sample=128,
+        train_freq=1,
+
+        # Joint phase
+        joint_rounds=None,
+
+        # Individual phase
+        individual_rounds=None,
+        # example:
+        # individual_rounds = [
+        #   dict(epochs=800,  lr=5e-6, T0=200, eta_min=1e-7),
+        #   dict(epochs=1200, lr=2e-6, T0=300, eta_min=1e-8),
+        # ]
+
+        lam_monotone=0.0,
+        lam_CR=1e-2,
+        lam_growth=0.0,
+        lam_zero_anchor=0.1,
+        lam_boundary_consistent=0.0,
+        anchor_set=None,
+    ):
+        if full_gradient:
+            assert theta_eval is not None
+        
+        if joint_rounds is None:
+            joint_rounds = []
+
+        if individual_rounds is None:
+            individual_rounds = []
+        
+        if anchor_set is not None:
+            anchor_set = anchor_set.to(device = self.device)
+
+        # --------------------------------------------------
+        # Logging containers
+        # --------------------------------------------------
+        total_loss_arr = []
+        log_mse_arr = []
+        bar_mse_arr = []
+        cr_loss_arr = []
+        mono_loss_arr = []
+        bar_mse_norm_arr = []
+
+        # --------------------------------------------------
+        # Joint training phase
+        # --------------------------------------------------
+        for r, cfg in enumerate(joint_rounds):
+            epochs = cfg["epochs"]
+            lr = cfg["lr"]
+            T0 = cfg.get("T0", epochs)
+            eta_min = cfg.get("eta_min", 0.0)
+            optimizer = optim.AdamW(self.model.parameters(), lr=lr)
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+                optimizer,
+                T_0=T0,
+                T_mult=1,
+                eta_min=eta_min,
+            )
+            
+            for epoch in tqdm(range(epochs), desc="Joint training"):
+                loss = 0.0
+                bar_mse = 0.0
+                bar_mse_norm = 0.0
+                log_bar_mse = 0.0
+                anchor_penalty = 0.0
+                cr = 0.0
+                mono_loss = 0.0
+                growth_loss = 0.0
+                boundary_consistency_loss = 0.0
+                optimizer.zero_grad(set_to_none=True)
+                
+                for _ in range(train_freq):
+                    theta = theta_eval.clone() if full_gradient else \
+                            self.sample_vector(lb=lb, ub=ub, imag_lb=imag_lb, imag_ub=imag_ub, excluded_boxes = excluded_boxes, batch_size=batch_size)
+                    if anchor_set is not None and not full_gradient:
+                        theta = torch.cat([theta, anchor_set], dim = 0)
+
+                    #print("before model", torch.cuda.memory_allocated() / 1024**3)
+                    output = self.model(theta)
+                    #print("after model", torch.cuda.memory_allocated() / 1024**3)
+                    log_phi_theta = output[:, 0:1]
+                    log_phi_i_theta = output[:, 1:]
+                    phi_theta = torch.exp(log_phi_theta)
+                    phi_i_theta = torch.exp(log_phi_i_theta)
+
+                    # BAR loss in log space
+                    #print("before bar loss", torch.cuda.memory_allocated() / 1024**3)
+                    bar_mse = self.bar_loss(theta, phi_theta, phi_i_theta)
+                    #print("before bar loss norm", torch.cuda.memory_allocated() / 1024**3)
+                    bar_mse_norm = self.bar_loss_normalized(theta, log_phi_theta, log_phi_i_theta)
+                    #print("before log bar loss", torch.cuda.memory_allocated() / 1024**3)
+                    log_bar_mse = self.log_bar_loss(theta, log_phi_theta, log_phi_i_theta, train_idx = 0)
+
+                    s0 = torch.zeros((1, self.d), dtype=torch.cdouble, device=self.device)
+                    M0 = self.model(s0)[:,0]
+                    anchor_penalty = (torch.exp(M0) - 1.0).abs().mean()
+
+                    # Penalties
+                    cr = self.cauchy_riemann_penalty(self.model, theta, max_grad_sample=max_grad_sample, max_boundary_grad_sample=max_boundary_grad_sample) if lam_CR > 0 else 0.0
+                    
+                    mono_loss = self.monotonicity_penalty(self.model, theta, max_grad_sample=max_grad_sample, max_boundary_grad_sample=max_boundary_grad_sample) if lam_monotone > 0 else 0.0
+                    growth_loss = self.growth_penalty(self.model, theta) if lam_growth > 0 else 0.0
+                    boundary_consistency_loss = self.boundary_consistency_penalty(self.model, theta) if lam_boundary_consistent > 0 else 0.0
+                    
+                    loss = bar_mse_norm + lam_zero_anchor * anchor_penalty + lam_CR * cr + lam_monotone * mono_loss + lam_growth * growth_loss + lam_boundary_consistent * boundary_consistency_loss
+                    loss.backward()
+
+                #optimizer.zero_grad()
+                #loss.backward()
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
+                optimizer.step()
+                scheduler.step()
+                    
+                total_loss_arr.append(loss.detach().item())
+                bar_mse_arr.append(bar_mse.detach().item())
+                bar_mse_norm_arr.append(bar_mse_norm.detach().item())
+                cr_loss_arr.append(cr.detach().item() if torch.is_tensor(cr) else 0.0)
+                mono_loss_arr.append(mono_loss.detach().item() if torch.is_tensor(mono_loss) else 0.0)
+
+        # --------------------------------------------------
+        # Individual training rounds
+        # --------------------------------------------------
+        for r, cfg in enumerate(individual_rounds):
+            epochs = cfg["epochs"]
+            lr = cfg["lr"]
+            T0 = cfg.get("T0", epochs)
+            eta_min = cfg.get("eta_min", 0.0)
+
+            for k in range(self.d + 1):
+                self.model.freeze_all()
+                if k == 0:
+                    self.model.unfreeze_interior()
+                else:
+                    self.model.unfreeze_boundary_i(k - 1)
+
+                optimizer = optim.AdamW(
+                    filter(lambda p: p.requires_grad, self.model.parameters()),
+                    lr=lr,
+                )
+                scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+                    optimizer,
+                    T_0=T0,
+                    T_mult=1,
+                    eta_min=eta_min,
+                )
+
+                for _ in tqdm(range(epochs), desc=f"Round {r}, component {k}"):
+                    theta = theta_eval.clone() if full_gradient else \
+                            self.sample_vector(lb=lb, ub=ub, imag_lb=imag_lb, imag_ub=imag_ub, excluded_boxes = excluded_boxes, batch_size=batch_size)
+                    
+                    if anchor_set is not None and not full_gradient:
+                        theta = torch.cat([theta, anchor_set], dim = 0)
+
+                    output = self.model(theta)
+                    log_phi_theta = output[:, 0:1]
+                    log_phi_i_theta = output[:, 1:]
+                    phi_theta = torch.exp(log_phi_theta)
+                    phi_i_theta = torch.exp(log_phi_i_theta)
+
+                    # BAR loss in log space
+                    bar_mse = self.bar_loss(theta, phi_theta, phi_i_theta)
+                    bar_mse_norm = self.bar_loss_normalized(theta, log_phi_theta, log_phi_i_theta)
+                    log_bar_mse = self.log_bar_loss(theta, log_phi_theta, log_phi_i_theta, train_idx = 0)
+
+                    s0 = torch.zeros((1, self.d), dtype=torch.cdouble, device=self.device)
+                    M0 = self.model(s0)[:,0]
+                    anchor_penalty = (torch.exp(M0) - 1.0).abs().mean()
+
+                    # Penalties
+                    cr = self.cauchy_riemann_penalty(self.model, theta) if lam_CR > 0 else 0.0
+                    
+                    mono_loss = self.monotonicity_penalty(self.model, theta) if lam_monotone > 0 else 0.0
+                    growth_loss = self.growth_penalty(self.model, theta) if lam_growth > 0 else 0.0
+                    boundary_consistency_loss = self.boundary_consistency_penalty(self.model, theta) if lam_boundary_consistent > 0 else 0.0
+                    
+                    loss = bar_mse_norm + lam_zero_anchor * anchor_penalty + lam_CR * cr + lam_monotone * mono_loss + lam_growth * growth_loss + lam_boundary_consistent * boundary_consistency_loss
+
+                    optimizer.zero_grad()
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
+                    optimizer.step()
+                    scheduler.step()
+
+                    total_loss_arr.append(loss.item())
+                    bar_mse_arr.append(bar_mse.item())
+                    bar_mse_norm_arr.append(bar_mse_norm.item())
+                    cr_loss_arr.append(cr.item() if torch.is_tensor(cr) else 0.0)
+                    mono_loss_arr.append(mono_loss.item() if torch.is_tensor(mono_loss) else 0.0)
+
+        # --------------------------------------------------
+        # Plot losses
+        # --------------------------------------------------
+        def save_plot(data, name, ylabel):
+            plt.plot(data)
+            plt.xlabel("Epoch")
+            plt.ylabel(ylabel)
+            plt.yscale("log")
+            plt.title(name)
+            plt.savefig(f"Plots/{self.dir}/{name}.png")
+            plt.clf()
+            plt.close()
+
+        save_plot(total_loss_arr, "total_loss", "Total Loss")
+        save_plot(bar_mse_arr, "bar_mse_loss", "BAR-MSE Loss")
+        save_plot(bar_mse_norm_arr, "bar_mse_norm_loss", "Normalized Bar-MSE Loss")
+        save_plot(cr_loss_arr, "cr_loss", "CR Loss")
+        save_plot(mono_loss_arr, "mono_loss", "Monotonicity Loss")
+
+    def get_first_moment(self):
+        s0 = torch.zeros(
+            1, self.d,
+            dtype=torch.cdouble,
+            device=self.device,
+            requires_grad=True
+        )
+        M = self.model(s0)[:, 0]   # interior MGF only
+        grad = torch.autograd.grad(
+            M.real.sum(),
+            s0,
+            create_graph=False
+        )[0]
+        return grad.real.squeeze().tolist()
+
+    def _moment_from_mgf_one_n(
+        self,
+        n: int,
+        dim: int,
+        a_n: float,
+        l: int = 2,
+        gamma: float = 11.0,
+        use_log: bool = False,
+    ) -> float:
+        """
+        Compute mu_n = E[X^n] using Algorithm 3's inversion formula (Eq. (33)),
+        where W_n(z) = M(a_n z) and M is the (learned) MGF.
+
+        Parameters
+        ----------
+        n : int
+            Moment order (n >= 1).
+        a_n : float
+            Adaptive scaling for this n.
+        l : int
+            Lattice-Poisson parameter (paper recommends 1 or 2).
+        gamma : float
+            Accuracy parameter (paper uses 11).
+        use_log : bool
+            If True, returns log(mu_n) instead of mu_n (natural log).
+            Useful if moments are astronomically large.
+
+        Returns
+        -------
+        mu_n or log(mu_n)
+        """
+        if n < 1:
+            raise ValueError("n must be >= 1")
+        if a_n <= 0:
+            raise ValueError("a_n must be positive")
+        if l not in (1, 2):
+            raise ValueError("l should be 1 or 2 (as recommended in the paper)")
+
+        # Radius r_n = 10^{-gamma/(2 n l)} (Eq. (11))
+        r_n = 10.0 ** (-gamma / (2.0 * n * l))
+
+        # Define W_n(z) = M(a_n z)  (Eq. (31))
+        def Wn(z: complex) -> complex:
+            # ---- build NN input ----
+            # create a single (1,d) complex tensor
+            inp = torch.zeros((1, self.d), dtype=torch.cdouble, device=self.device)
+            # put scaled value on chosen dimension
+            inp[0, dim] = complex(a_n * z)
+            # ---- evaluate NN MGF ----
+            val = self.eval(inp)[0, 0]   # interior MGF
+            # convert tensor -> python complex
+            return complex(val.item())
+
+        # The discrete sum in Eq. (33):
+        # S = Wn(r) + (-1)^n Wn(-r) + 2 * sum_{j=1}^{nl-1} Re( Wn(r e^{i pi j/(n l)}) * e^{-i pi j / l} )
+        nl = n * l
+        r = r_n
+
+        S = Wn(r) + ((-1) ** n) * Wn(-r)
+
+        # Angles: theta_j = pi * j / (n l)
+        # Phase factor: exp(-i * pi * j / l)
+        for j in range(1, nl):
+            theta = math.pi * j / nl
+            z = r * complex(math.cos(theta), math.sin(theta))
+            phase = complex(math.cos(-math.pi * j / l), math.sin(-math.pi * j / l))
+            S += 2.0 * (Wn(z) * phase).real
+
+        # Prefactor: n! / (2 n l r^n a^n)
+        # (Eq. (33), ignoring the discretization-error term)
+        # To improve stability for large n, optionally compute in log-space.
+        if use_log:
+            # log(n!) - log(2 n l) - n log(r) - n log(a) + log(S)
+            # S should be (numerically) real positive for valid MGFs; clip if tiny negative due to roundoff.
+            S_real = float(S.real)
+            if S_real <= 0:
+                raise FloatingPointError(
+                    f"S became non-positive (S={S_real}). "
+                    "This can happen if MGF evaluations are noisy or l/gamma are too aggressive."
+                )
+            log_pref = math.lgamma(n + 1) - math.log(2.0 * n * l) - n * math.log(r) - n * math.log(a_n)
+            return log_pref + math.log(S_real)
+        else:
+            pref = math.factorial(n) / (2.0 * n * l * (r ** n) * (a_n ** n))
+            mu_n = pref * float(S.real)
+            return mu_n
+
+    def moments_from_mgf_singledim(
+        self,
+        N: int,
+        dim: int,
+        l_step2: int = 2,
+        l_step3: int = 2,
+        gamma: float = 11.0,
+        return_log_if_overflow: bool = True,
+    ) -> Tuple[List[float], bool]:
+        """
+        Compute moments mu_1,...,mu_N using Algorithm 3 (Sec. 6.2).
+
+        Returns
+        -------
+        moments : list
+            If return_log_if_overflow=False: [mu_1,...,mu_N]
+            If return_log_if_overflow=True and overflow occurs: returns log(mu_n) instead.
+            (Mixed output is avoided; we switch all outputs to logs once needed.)
+        is_log : bool
+            True if the returned list contains log-moments.
+        """
+        if N < 1:
+            return [], False
+
+        # We'll maintain mu_0 = 1
+        mu: List[float] = [1.0]  # mu[0] = mu_0
+
+        # --- STEP 1: initial computation of mu1 and mu2 ---
+        # Paper sets a1 = 1, and uses a heuristic for a2 based on the initial mu1 (Sec. 6.1-6.2).
+        # We'll do:
+        #   a1 = 1
+        #   compute mu1
+        #   a2 = 1/mu1  (simple scale so that E[a2 X] is ~1)
+        #   compute mu2
+        a1 = 1.0
+        mu1 = self._moment_from_mgf_one_n(1, dim, a1, l=1, gamma=gamma, use_log=False)
+        if mu1 <= 0:
+            raise FloatingPointError("Computed mu1 <= 0; check that M(z) is a valid MGF near 0.")
+        a2 = 1.0 / mu1
+        mu2 = self._moment_from_mgf_one_n(2, dim, a2, l=1, gamma=gamma, use_log=False)
+
+        mu.extend([mu1, mu2])
+
+        # --- STEP 2: recompute mu1 and mu2 to increase accuracy ---
+        # Paper suggests setting a1 = a2 = 2*mu1/mu2 (Sec. 6.2 Step 2).
+        a12 = 2.0 * mu1 / mu2 if mu2 > 0 else 1.0
+        mu1 = self._moment_from_mgf_one_n(1, dim, a12, l=l_step2, gamma=gamma, use_log=False)
+        mu2 = self._moment_from_mgf_one_n(2, dim, a12, l=l_step2, gamma=gamma, use_log=False)
+        mu[1], mu[2] = mu1, mu2
+
+        # Decide whether we need log-moments (optional safety)
+        use_log = False
+
+        # --- STEP 3: compute mu_n for n=3..N ---
+        for n in range(3, N + 1):
+            if not use_log:
+                # a_n = (n-1)*mu_{n-2}/mu_{n-1} (Eq. (29))
+#                if mu[n - 1] <= 0:
+#                    raise FloatingPointError(f"mu_{n-1} <= 0; cannot form a_n.")
+                a_n = (n - 1.0) * mu[n - 2] / mu[n - 1]
+                if a_n <= 0:
+                    a_n = 1.0
+
+                try:
+                    mu_n = self._moment_from_mgf_one_n(n, dim, a_n, l=l_step3, gamma=gamma, use_log=False)
+                    if not math.isfinite(mu_n) and return_log_if_overflow:
+                        use_log = True
+                except OverflowError:
+                    if return_log_if_overflow:
+                        use_log = True
+                    else:
+                        raise
+
+                if not use_log:
+                    mu.append(mu_n)
+                else:
+                    # Switch everything to log-space retroactively
+                    log_mu = [math.log(x) for x in mu]  # includes mu_0..mu_{n-1}
+                    mu = log_mu
+            if use_log:
+                # Now compute in log-space
+                # a_n = (n-1)*mu_{n-2}/mu_{n-1}  ->  log(a_n) = log(n-1) + log(mu_{n-2}) - log(mu_{n-1})
+                log_a_n = math.log(n - 1.0) + mu[n - 2] - mu[n - 1]
+                a_n = math.exp(log_a_n)
+                log_mu_n = self._moment_from_mgf_one_n(n, dim, a_n, l=l_step3, gamma=gamma, use_log=True)
+                mu.append(log_mu_n)
+
+        # Return mu_1..mu_N (drop mu_0)
+        return mu[1:], use_log
+    
+    def moments_from_mgf(self, N: int):
+        moments = torch.zeros((N, self.d))
+        for d in range(self.d):
+            moments_singledim, use_log = self.moments_from_mgf_singledim(N, d)
+            moments_singledim = torch.tensor(moments_singledim)
+            if use_log:
+                moments_singledim = torch.exp(moments_singledim)
+            moments[:,d] = moments_singledim
+        return moments.tolist()
+
+    def eval(self, x):
+        x = x.to(device = self.device)
+        with torch.no_grad():
+            output = self.model(x)
+            output = torch.exp(output)
+        return output.cpu()
+    
+    def save(self):
+        state_dict = {"model_state_dict": self.model.cpu().state_dict()}
+        torch.save(state_dict, f"Models/{self.dir}/mgf.pt")
+        self.model.to(device = self.device)
+    
+    def load(self):
+        state_dict = torch.load(f"Models/{self.dir}/mgf.pt", map_location=self.device)
+        self.model.load_state_dict(state_dict["model_state_dict"])
+        self.model.to(device = self.device)
+    
+    def plot_compare_heatmap(self, real_lb, real_ub, imag_lb, imag_ub, phi_theta, phi_theta_true, title):
+        n = int(len(phi_theta) ** 0.5)
+        # Compute global min and max for color scale
+        vmin_real = min(phi_theta.real.min(), phi_theta_true.real.min())
+        vmax_real = max(phi_theta.real.max(), phi_theta_true.real.max())
+        vmin_imag = min(phi_theta.imag.min(), phi_theta_true.imag.min())
+        vmax_imag = max(phi_theta.imag.max(), phi_theta_true.imag.max())
+        fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+        # ---- Top left plot: phi_theta (Real) ----
+        im11 = axes[0, 0].imshow(
+            phi_theta.real.reshape((n, n)),
+            extent=(real_lb, real_ub, imag_lb, imag_ub),
+            origin="lower",
+            aspect="auto",
+            vmin=vmin_real,
+            vmax=vmax_real
+        )
+        axes[0, 0].set_title("Model (Real)")
+        axes[0, 0].set_xlabel("x")
+        axes[0, 0].set_ylabel("y")
+        fig.colorbar(im11, ax=axes[0, 0])
+        # ---- Top left plot: phi_theta (Imag) ----
+        im12 = axes[0, 1].imshow(
+            phi_theta.imag.reshape((n, n)),
+            extent=(real_lb, real_ub, imag_lb, imag_ub),
+            origin="lower",
+            aspect="auto",
+            vmin=vmin_imag,
+            vmax=vmax_imag
+        )
+        axes[0, 1].set_title("Model (Imag)")
+        axes[0, 1].set_xlabel("x")
+        axes[0, 1].set_ylabel("y")
+        fig.colorbar(im12, ax=axes[0, 1])
+        # ---- Lower left plot: phi_theta_true (Real) ----
+        im21 = axes[1, 0].imshow(
+            phi_theta_true.real.reshape((n, n)),
+            extent=(real_lb, real_ub, imag_lb, imag_ub),
+            origin="lower",
+            aspect="auto",
+            vmin=vmin_real,
+            vmax=vmax_real
+        )
+        axes[1, 0].set_title("Ground Truth (Real)")
+        axes[1, 0].set_xlabel("x")
+        axes[1, 0].set_ylabel("y")
+        fig.colorbar(im21, ax=axes[1, 0])
+        # ---- Lower left plot: phi_theta_true (Imag) ----
+        im22 = axes[1, 1].imshow(
+            phi_theta_true.imag.reshape((n, n)),
+            extent=(real_lb, real_ub, imag_lb, imag_ub),
+            origin="lower",
+            aspect="auto",
+            vmin=vmin_imag,
+            vmax=vmax_imag
+        )
+        axes[1, 1].set_title("Ground Truth (Imag)")
+        axes[1, 1].set_xlabel("x")
+        axes[1, 1].set_ylabel("y")
+        fig.colorbar(im22, ax=axes[1, 1])
+        plt.tight_layout()
+        plt.savefig(f"Plots/{self.dir}/heatmap_{title.lower().replace(' ', '_')}.png")
+        plt.clf()
+        plt.close()
+
+    def plot_compare(self, phi_theta, phi_theta_true, title):
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+        min_val_real = min(torch.min(phi_theta.real).item(), torch.min(phi_theta_true.real).item())
+        max_val_real = max(torch.max(phi_theta.real).item(), torch.max(phi_theta_true.real).item())
+        min_val_imag = min(torch.min(phi_theta.imag).item(), torch.min(phi_theta_true.imag).item())
+        max_val_imag = max(torch.max(phi_theta.imag).item(), torch.max(phi_theta_true.imag).item())
+        axes[0].scatter(phi_theta.real, phi_theta_true.real)
+        axes[0].axline((min_val_real, min_val_real), (max_val_real, max_val_real), color = "red")
+        axes[0].set_xlabel("Model")
+        axes[0].set_ylabel("Ground Truth")
+        axes[0].set_title(title + " (Real)")
+        axes[1].scatter(phi_theta.imag, phi_theta_true.imag)
+        axes[1].axline((min_val_imag, min_val_imag), (max_val_imag, max_val_imag), color = "red")
+        axes[1].set_xlabel("Model")
+        axes[1].set_ylabel("Ground Truth")
+        axes[1].set_title(title + " (Imag)")
+        plt.savefig(f"Plots/{self.dir}/{title.lower().replace(' ', '_')}.png")
+        plt.clf()
+        plt.close()

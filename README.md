@@ -159,3 +159,10 @@ python scripts/build_signed_diagnostics.py
 
 See [reproduction instructions](docs/reproducibility.md) and
 [validation checks](docs/validation_checklist.md) for additional details.
+
+## Server time and memory comparison
+
+Use [benchmarks/](benchmarks/) to run HCN and pinned NN4MGF code on the same
+GPU at 20D and 30D. It provides smoke, profiling, and full-configuration modes.
+See [the Chinese handoff guide](benchmarks/给学长的运行说明.md) for commands.
+The guide distinguishes the public NN4MGF configuration from the paper schedule.

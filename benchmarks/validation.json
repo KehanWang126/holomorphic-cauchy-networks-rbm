@@ -1,0 +1,37 @@
+{
+  "scope": "CPU integration only; not a GPU timing or memory benchmark",
+  "torch": "2.5.1+cpu",
+  "checks": [
+    {
+      "method": "hcn",
+      "dimension": 20,
+      "status": "completed",
+      "updates": 2,
+      "tail_evaluations": 20
+    },
+    {
+      "method": "nn4mgf",
+      "dimension": 20,
+      "status": "completed",
+      "updates": 2,
+      "tail_evaluations": 20
+    },
+    {
+      "method": "hcn",
+      "dimension": 30,
+      "status": "completed",
+      "updates": 2,
+      "tail_evaluations": 20
+    },
+    {
+      "method": "nn4mgf",
+      "dimension": 30,
+      "status": "completed",
+      "updates": 2,
+      "tail_evaluations": 20
+    }
+  ],
+  "unit_tests_passed": 4,
+  "gpu_measurements_performed": false,
+  "full_training_performed": false
+}

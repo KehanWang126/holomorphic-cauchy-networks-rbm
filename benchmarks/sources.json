@@ -1,0 +1,12 @@
+{
+  "nn4mgf_repository": "https://github.com/zhangz73/NN4MGF",
+  "nn4mgf_commit": "1956666902281f6ce4558ca82d8d15fa038f06fb",
+  "hcn_source_commit": "4f4fa9ea348003968c20ad9b1c6e63ae4bdd2277",
+  "sha256": {
+    "notebooks/d20_skew_symmetric_product_form.ipynb": "e380c999e836987f625f864a628d9456030b4fc4def5a7e6a7014b3a04fb5068",
+    "notebooks/d30_skew_symmetric_product_form.ipynb": "3896e23997cfc939ee4871833591a3714e0a79791086ad700fea56240a5b2018",
+    "benchmarks/vendor/nn4mgf/fit_mgf.py": "46d123430d459a2dfee064ace4742bdf213fde024c49bdd4da317f1a549364e7",
+    "benchmarks/vendor/nn4mgf/test_skew_symmetric.py": "bbeeae68957be291f06ed90b7f145c5f017205645aa83ed1e7a09c239c41709b",
+    "benchmarks/vendor/nn4mgf/LICENSE": "2608a873b9c35511643d4d7fce2a5dfeaecfe497c7f9e7fa9fa0b8ec97568002"
+  }
+}
