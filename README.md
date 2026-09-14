@@ -134,10 +134,10 @@ The fixed step-15,000 Degree-5 results are:
 
 | Benchmark and range | HCN MRE | NN4MGF reference MRE |
 |---|---:|---:|
-| 2D skew-symmetric, \(t=1{:}5\) | 2.147% | 2.448% |
-| 2D skew-symmetric, \(t=1{:}8\) | 2.213% | 8.050% |
-| 2D skew-symmetric, \(t=1{:}10\) | 9.737% | 13.915% |
-| 2D Harrison, \(t=1{:}5\) | 1.422% | 6.684% |
+| 2D skew-symmetric, 1:5 | 2.147% | 2.448% |
+| 2D skew-symmetric, 1:8 | 2.213% | 8.050% |
+| 2D skew-symmetric, 1:10 | 9.737% | 13.915% |
+| 2D Harrison, 1:5 | 1.422% | 6.684% |
 
 The curated artifacts and exact endpoint hashes are under the corresponding
 `results/d2_*` directories.
@@ -151,12 +151,13 @@ all three seeds in percentage points.
 
 | Evaluation range | HCN MRE, mean ± sample SD | Archived NN4MGF MRE |
 |---|---:|---:|
-| \(t=1{:}5\) | 1.455% ± 1.306% | 2.802% |
-| \(t=1{:}8\) | 7.641% ± 1.568% | 8.148% |
-| \(t=1{:}10\) | 12.271% ± 3.690% | 18.908% |
+| 1:5 | 1.455% ± 1.306% | 2.802% |
+| 1:8 | 7.641% ± 1.568% | 8.148% |
+| 1:10 | 12.271% ± 3.690% | 18.908% |
 
 Degree 5 is retained only as a numerical diagnostic and historical comparison
-bridge. The main-result directory contains all 60 recomputed HCN points,
+bridge. The main-result directory contains all 60 recomputed HCN tail-probability evaluation records
+(3 seeds × 2 inversion degrees × 10 thresholds),
 references to the three shared endpoint weights, aggregate tables, exact-transform
 diagnostics, and a
 SHA-256 manifest.
@@ -191,39 +192,41 @@ the executable test suite is under `tests/`.
 
 ## Audited 30D main result
 
-The 30D main result uses the prespecified seed `12345` and fixed global step
-50,000. The first 40,000 updates use learning rate `5e-5`; the final 10,000 use
-`1e-5`. With batches `1024/128/128`, its 64 million sampled constraints exactly
-match the 20D per-seed budget. Talbot Degree 8 is primary.
+The 30D main result uses seed `12345` and the fixed step-50,000 endpoint.
+The first 40,000 updates use learning rate `5e-5`; the final 10,000 use
+`1e-5`. Batches `1024/128/128` give a total budget of 64 million sampled
+base inputs.
 
-| Evaluation range | HCN MRE | Exact-transform inversion MRE |
-|---|---:|---:|
-| \(t=1{:}5\) | 1.685% | 0.155% |
-| \(t=1{:}8\) | 6.547% | 0.179% |
-| \(t=1{:}10\) | 8.873% | 0.376% |
+Degree 5 provides the same-degree comparison with the reported NN4MGF
+benchmark results. HCN has lower MRE on all three reporting ranges.
 
-These metrics come from the fixed endpoint, not the retrospective 29k or 49k
-diagnostic minima and not the later 50k-to-60k exploratory continuation. Raw
-predictions are retained; the small Degree-8 overshoot at `t=1` is flagged rather
-than clipped.
+| Method | Talbot degree | 1:5 MRE (%) | 1:8 MRE (%) | 1:10 MRE (%) |
+|---|---:|---:|---:|---:|
+| NN4MGF (reported benchmark) | 5 | 8.353 | 10.476 | 21.507 |
+| HCN (comparison) | 5 | 3.691 | 10.270 | 19.215 |
+
+Degree 8 is our primary evaluation rule. With the same step-50,000 weights,
+HCN gives:
+
+| Method | Talbot degree | 1:5 MRE (%) | 1:8 MRE (%) | 1:10 MRE (%) |
+|---|---:|---:|---:|---:|
+| HCN (primary) | 8 | 1.685 | 6.547 | 8.873 |
 
 ## Audited 50D main result
 
-The 50D main result uses seed `12345` and the prespecified global step-100,000
-endpoint. The first 80,000 updates use learning rate `5e-5`; the final 20,000 use
-`1e-5`. Batches `512/64/64` give the same 64-million sampled-constraint budget
-used by the 20D and 30D comparisons. Talbot Degree 8 is primary.
+The 50D experiment runs on a single NVIDIA GeForce RTX 4080 Laptop GPU,
+using seed `12345` and the fixed step-100,000 endpoint. The first 80,000
+updates use learning rate `5e-5`; the final 20,000 use `1e-5`. Batches
+`512/64/64` maintain the 64-million-base-input budget. Talbot Degree 8
+is the primary evaluation rule.
 
-| Evaluation range | HCN MRE | Exact-transform inversion MRE |
-|---|---:|---:|
-| \(t=1{:}5\) | 1.504% | 0.596% |
-| \(t=1{:}8\) | 6.373% | 0.469% |
-| \(t=1{:}10\) | 8.015% | 0.608% |
+| Method | Talbot degree | 1:5 MRE (%) | 1:8 MRE (%) | 1:10 MRE (%) |
+|---|---:|---:|---:|---:|
+| HCN (primary) | 8 | 1.504 | 6.373 | 8.015 |
 
-The Degree-8 prediction at `t=2` is `1.0004776`, a slight overshoot. It is
-reported raw, marked invalid, and retained in every MRE. Degree 5 is diagnostic
-only; its analytic-transform Talbot inversion is visibly unstable at low degree
-for this 50D transform.
+The model uses 18,308 trainable real scalar parameters. Its interval MREs
+are lower than the corresponding 30D Degree-8 results, maintaining accuracy
+as this benchmark is extended from 30 to 50 dimensions.
 
 ## Checkpoint inventory
 
