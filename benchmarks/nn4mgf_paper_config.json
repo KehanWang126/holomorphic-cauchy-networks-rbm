@@ -19,7 +19,7 @@
       "eta_min": 1e-06
     }
   ],
-  "train_freq": 1,
+  "train_freq": 2,
   "batch_size": 16384,
   "max_grad_sample": 1024,
   "max_boundary_grad_sample": 128

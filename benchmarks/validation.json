@@ -34,6 +34,6 @@
   "unit_tests_passed": 5,
   "gpu_measurements_performed": false,
   "full_training_performed": false,
-  "nn4mgf_default": "Paper Appendix A: 300000 updates, three learning-rate stages, train_freq=1",
-  "smoke_rerun": "All four method/dimension runs passed with seed 12345 after schedule correction"
+  "nn4mgf_default": "300000 updates, three learning-rate stages, upstream train_freq=2; no explicit seed",
+  "smoke_rerun": "NN4MGF 20D and 30D unseeded two-batch smoke passed; HCN prior smoke unchanged"
 }

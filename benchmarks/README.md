@@ -23,7 +23,7 @@ CUDA_VISIBLE_DEVICES=0 python benchmarks/run.py --mode profile --dimensions 20 3
 CUDA_VISIBLE_DEVICES=0 python benchmarks/run.py --mode full --dimensions 20 30
 ```
 
-The comparison uses seed `12345` for both methods at 20D and 30D. Use
+HCN uses seed `12345`; NN4MGF runs once per dimension without an explicit seed. Use
 `--methods hcn` or `--methods nn4mgf` for one method, and
 `--output /path/to/new-directory` to choose
 an output directory. Every method/dimension/seed runs in a fresh process.
@@ -37,27 +37,30 @@ CPU integration checks are available with `--mode smoke --device cpu`.
 |---|---:|---:|---:|---:|
 | HCN | 20 | 25,000 | 2,560 | 64,000,000 |
 | HCN | 30 | 50,000 | 1,280 | 64,000,000 |
-| NN4MGF paper schedule | 20/30 | 300,000 | 16,384 | 4,915,200,000 |
+| NN4MGF, 300k with upstream two-batch updates | 20/30 | 300,000 | 32,768 | 9,830,400,000 |
 
 HCN retains its notebook optimizer, losses, sampler, learning-rate switch,
 and backward implementation. NN4MGF retains its `MGFTrainer.train()` method,
-including AdamW, the cosine schedule, CR penalty, one sampled batch per update,
+including AdamW, the cosine schedule, CR penalty, two sampled batches per update,
 and its diagnostic calculations. Model precision is recorded in each report.
 Training curves and intermediate checkpoint I/O from the HCN notebook driver
 are not replayed; this harness compares training updates, then saves the final
 state and computes tail errors. NN4MGF's own end-of-training plots remain enabled.
 
-The NN4MGF configuration follows [paper Appendix A](https://arxiv.org/html/2607.08091v1):
-three 100,000-update stages, annealing the learning rate from 1e-3 to 1e-4,
-then 1e-4 to 1e-5, then 1e-5 to 1e-6. Each update samples 16,384 inputs.
-`nn4mgf_paper_config.json` is the default full-run configuration. The wrapper
-sets `train_freq=1` to implement the paper's per-update sampling count; the
-unchanged upstream example enables only the first stage and uses `train_freq=2`.
-Its settings remain in `nn4mgf_public_config.json` for provenance. The upstream
-optimizer/scheduler implementation is retained, including optimizer recreation
-between stages. This is a new same-server experiment using the paper's schedule.
-The paper and inspected training sources do not specify the original seed;
-12345 is the seed chosen for this comparison, not an attributed original seed.
+NN4MGF uses the three 100,000-update learning-rate stages described in
+[paper Appendix A](https://arxiv.org/html/2607.08091v1): 1e-3 to 1e-4,
+1e-4 to 1e-5, and 1e-5 to 1e-6. It retains the public code's `train_freq=2`:
+two independently sampled batches of 16,384 inputs, two backward passes with
+accumulated gradients, and one optimizer step per update.
+`nn4mgf_paper_config.json` stores this full-run configuration. The paper describes
+16,384 inputs per update, whereas the public driver uses two batches; this
+benchmark counts the actual two batches. The original driver enables only the
+first learning-rate stage; the full benchmark enables all three stages.
+The upstream training module is unchanged, including optimizer recreation
+between stages. No seed is set by the wrapper for NN4MGF. Its report records
+`seed: null`, and its output directory ends in `_unseeded`. HCN retains seed 12345.
+The 64M HCN input budget is 0.65104% (1/153.6) of this NN4MGF configuration's
+9.8304 billion inputs. This is a sampling ratio, not a measured speedup.
 `--nn-config` accepts an explicit alternative full-run configuration and records
 its hash and effective settings in the report.
 

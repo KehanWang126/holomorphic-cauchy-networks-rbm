@@ -139,13 +139,13 @@ def worker(args):
     out = Path(args.output).resolve()
     out.mkdir(parents=True, exist_ok=False)
     report = dict(status='running', method=args.method, dimension=args.dimension,
-                  seed=args.seed, mode=args.mode, nn4mgf_commit=UPSTREAM,
+                  seed=args.seed if args.method=='hcn' else None, mode=args.mode, nn4mgf_commit=UPSTREAM,
                   torch=str(torch.__version__), numpy=np.__version__, mpmath=mpmath.__version__,
                   python=sys.version, cuda_runtime=torch.version.cuda,
                   measurement='CUDA synchronized update wall time; PyTorch allocator peaks',
-                  protocol='HCN fixed endpoint / NN4MGF paper Appendix A schedule',
+                  protocol='HCN fixed endpoint / NN4MGF 300k schedule with upstream two-batch updates',
                   schedule_source='https://arxiv.org/html/2607.08091v1#A1',
-                  seed_provenance='New comparison seed; original NN4MGF seed not documented')
+                  seed_provenance='HCN explicit seed; NN4MGF RNG left unseeded by wrapper')
     try:
         report['source_lock'] = verify_sources()
         if args.device == 'cuda' and not torch.cuda.is_available():
@@ -166,8 +166,9 @@ def worker(args):
                 report['nvidia_smi_inventory']=info.stdout.strip()
             except (OSError, subprocess.TimeoutExpired):
                 report['nvidia_smi_inventory']=None
-        random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
-        if device == 'cuda': torch.cuda.manual_seed_all(args.seed)
+        if args.method == 'hcn':
+            random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
+            if device == 'cuda': torch.cuda.manual_seed_all(args.seed)
         d=args.dimension
         warmup = args.warmup if args.mode=='profile' else 0
         steps = (25000 if d==20 else 50000) if args.method=='hcn' else 300000
@@ -209,7 +210,7 @@ def worker(args):
             batch=64 if args.mode=='smoke' else 16384
             config=dict(lb=-5,ub=.5,imag_lb=-5,imag_ub=5,excluded_boxes=[],full_gradient=False,
                         theta_eval=None,batch_size=batch,max_grad_sample=4 if args.mode=='smoke' else 1024,
-                        max_boundary_grad_sample=4 if args.mode=='smoke' else 128,train_freq=1,
+                        max_boundary_grad_sample=4 if args.mode=='smoke' else 128,train_freq=2,
                         joint_rounds=[dict(epochs=steps,lr=1e-3,T0=100000,eta_min=1e-4)],
                         individual_rounds=None,lam_monotone=10.,lam_CR=10.,lam_growth=0.,
                         lam_zero_anchor=.1,lam_boundary_consistent=10.,anchor_set=None)
@@ -283,7 +284,9 @@ def main():
     for d in args.dimensions:
         for seed in args.seeds:
             for method in args.methods:
-                out=dest/f'{method}_d{d}_seed{seed}'
+                if method=='nn4mgf' and seed != args.seeds[0]: continue
+                label=f'{method}_d{d}_seed{seed}' if method=='hcn' else f'{method}_d{d}_unseeded'
+                out=dest/label
                 env=os.environ.copy();env['MPLBACKEND']='Agg'
                 if args.device=='cpu':env['CUDA_VISIBLE_DEVICES']=''
                 cmd=[sys.executable,str(Path(__file__).resolve()),'--worker','--method',method,
@@ -291,10 +294,10 @@ def main():
                      '--steps',str(args.steps),'--warmup',str(args.warmup),'--cpu-threads',str(args.cpu_threads),
                      '--output',str(out)]
                 if args.nn_config and method=='nn4mgf':cmd.extend(['--nn-config',str(Path(args.nn_config).resolve())])
-                print('Running',method,d,seed,flush=True)
-                with (dest/f'{method}_d{d}_seed{seed}.log').open('w') as f:
+                print('Running',method,d,seed if method=='hcn' else 'unseeded',flush=True)
+                with (dest/f'{label}.log').open('w') as f:
                     result=subprocess.run(cmd,env=env,stdout=f,stderr=subprocess.STDOUT)
-                report=json.loads((out/'report.json').read_text()) if (out/'report.json').exists() else dict(status='failed',method=method,dimension=d,seed=seed,error='Worker terminated; inspect log',returncode=result.returncode)
+                report=json.loads((out/'report.json').read_text()) if (out/'report.json').exists() else dict(status='failed',method=method,dimension=d,seed=seed if method=='hcn' else None,error='Worker terminated; inspect log',returncode=result.returncode)
                 reports.append(report);dump(dest/'summary.json',reports)
                 print(report['status'],out,flush=True)
     fields=['method','dimension','seed','mode','status','mean_update_seconds','median_update_seconds',

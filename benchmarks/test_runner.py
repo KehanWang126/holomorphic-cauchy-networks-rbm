@@ -28,7 +28,7 @@ class BenchmarkTests(unittest.TestCase):
         self.assertEqual([s['epochs'] for s in c['joint_rounds']],[100000]*3)
         self.assertEqual([s['lr'] for s in c['joint_rounds']],[1e-3,1e-4,1e-5])
         self.assertEqual([s['eta_min'] for s in c['joint_rounds']],[1e-4,1e-5,1e-6])
-        self.assertEqual(sum(s['epochs'] for s in c['joint_rounds'])*c['train_freq']*c['batch_size'],4915200000)
+        self.assertEqual(sum(s['epochs'] for s in c['joint_rounds'])*c['train_freq']*c['batch_size'],9830400000)
     def test_transform_sign_conventions(self):
         import torch
         class ExactLogTransform(torch.nn.Module):
