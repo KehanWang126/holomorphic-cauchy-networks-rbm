@@ -170,8 +170,19 @@ and tanh has 15,108.
 
 The Degree-8 `1:8` Cauchy result is **7.641% ± 1.568%**. The tanh aggregate is
 dominated by a catastrophic failure of seed `22345`; that seed and every extreme
-prediction remain included. The full pointwise data should be used instead of a
-visually truncated summary of that failure.
+prediction remain included. For the manuscript activation comparison, usability is reported separately:
+Cauchy succeeds in 3/3 recorded runs and tanh in 2/3. The conditional accuracy
+comparison uses the same two successful seed labels, 12345 and 32345:
+
+| Activation | 1:5 MRE (%) | 1:8 MRE (%) | 1:10 MRE (%) |
+|---|---:|---:|---:|
+| Cauchy | 1.933 | 7.465 | 10.308 |
+| Complex tanh | 10.045 | 24.138 | 49.136 |
+
+These values are in `paired_success_summary.csv`; `failure_summary.csv` records
+the counts. The existing `multiseed_summary.csv` continues to include all three
+seeds. Run `python scripts/build_paper_summaries.py` to rebuild the additional
+paper summaries from the recorded predictions.
 
 The six checkpoint SHA-256 hashes, 120 recomputed evaluation points, Talbot
 diagnostics, and a 22-test CPU validation report are committed under
@@ -185,7 +196,7 @@ The 30D main result uses the prespecified seed `12345` and fixed global step
 `1e-5`. With batches `1024/128/128`, its 64 million sampled constraints exactly
 match the 20D per-seed budget. Talbot Degree 8 is primary.
 
-| Evaluation range | HCN MRE | Exact-transform Talbot floor |
+| Evaluation range | HCN MRE | Exact-transform inversion MRE |
 |---|---:|---:|
 | \(t=1{:}5\) | 1.685% | 0.155% |
 | \(t=1{:}8\) | 6.547% | 0.179% |
@@ -203,7 +214,7 @@ endpoint. The first 80,000 updates use learning rate `5e-5`; the final 20,000 us
 `1e-5`. Batches `512/64/64` give the same 64-million sampled-constraint budget
 used by the 20D and 30D comparisons. Talbot Degree 8 is primary.
 
-| Evaluation range | HCN MRE | Exact-transform Talbot floor |
+| Evaluation range | HCN MRE | Exact-transform inversion MRE |
 |---|---:|---:|
 | \(t=1{:}5\) | 1.504% | 0.596% |
 | \(t=1{:}8\) | 6.373% | 0.469% |
@@ -238,3 +249,25 @@ release gates.
 The 2D, 20D, 30D, and 50D entries listed above are the audited public subset.
 Every archived checkpoint is released with a fixed SHA-256 and a dependency-light
 integrity test.
+
+## Manuscript diagnostics
+
+Run `python scripts/build_signed_diagnostics.py` to reconstruct all 80 signed
+error decompositions in `results/diagnostics/d20_signed_errors.csv`. This joins
+recorded exact-transform, HCN, and archived NN4MGF predictions and checks the
+additive identity before rounding. It does not train or run checkpoint inference.
+
+NN4MGF denotes the method of Dai and Zhang (2026), following the name of their
+public code repository. Exact-transform inversion error measures the error from
+applying Talbot to the exact transform; it is not a lower bound on the final
+learned-transform tail error. Legacy internal fields containing `floor` retain
+their names for compatibility.
+
+The 30D/50D implementations backpropagate the loss branches sequentially,
+accumulating gradients before a single optimizer update. Together with smaller
+batches, this controls simultaneous graph storage while additional updates
+maintain the sampling budget. No same-hardware speedup ratio is inferred.
+
+The 50D session-clock reconstruction is documented in
+`results/d50_skew_symmetric_product_form/training_runtime.json` and
+`runtime_segments.csv`. The last session's 16.98 hours is not a cumulative clock.

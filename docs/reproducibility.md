@@ -157,3 +157,14 @@ successful audits, complete fixed-endpoint reporting, and comparable accuracy.
 In contrast, evaluating an unchanged archived checkpoint must preserve its hash
 and reproduce the reference pointwise values within the stated numerical
 tolerance.
+
+
+### Paper summary synchronization
+
+The archived all-three-seed aggregates retain every failure and extreme value.
+The manuscript additionally reports usable-run counts and Degree-8 conditional
+means over common successful seeds 12345 and 32345. Rebuild these separate files
+with `python scripts/build_paper_summaries.py` from the repository root.
+Rebuild the 80 signed error decompositions with
+`python scripts/build_signed_diagnostics.py`. Both scripts use recorded data,
+without retraining, selecting a new endpoint, or clipping predictions.
