@@ -23,6 +23,9 @@ Thumbs.db
 # Raw notebook runs. Curated artifacts are copied into results/ after audit.
 outputs/
 
+# Same-server benchmark outputs
+benchmark_runs/
+
 # LaTeX and temporary files
 *.aux
 *.log
