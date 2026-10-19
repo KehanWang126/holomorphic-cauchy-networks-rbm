@@ -1,0 +1,13 @@
+{
+  "source_hashes_verified": 34,
+  "point_count": 444,
+  "finite_point_count": 444,
+  "duplicate_points": 0,
+  "selected_10d_seeds": [
+    "12345"
+  ],
+  "product_references_verified": true,
+  "clipping_projection_checks_passed": true,
+  "trajectory_endpoint_crosscheck_passed": true,
+  "warnings": []
+}

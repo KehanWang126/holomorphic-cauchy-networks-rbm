@@ -30,9 +30,7 @@ kernel crash. Cauchy remains evaluated directly in PyTorch complex128.
 ## Interpretation
 
 Degree 8 is primary; Degree 5 is a numerical diagnostic and historical comparison
-bridge. Predictions are not clipped. Invalid, negative, above-one, extreme, or
-nonfinite outcomes are recorded rather than removed. Aggregate standard deviations
-use `ddof=1` over all three prespecified seeds.
+bridge. This evaluator retains raw predictions and raw invalid flags. Manuscript errors are recomputed separately from finite predictions clipped to [0, 1] under [paper/audit/](../../paper/audit/), without discarding any seed. Nonfinite outcomes remain invalid; sample standard deviations use `ddof=1` over all three prespecified seeds.
 
 This is a same-width and same-sampled-constraint-budget comparison, not an exact
 parameter match. Cauchy has 16,388 trainable real scalar degrees of freedom and

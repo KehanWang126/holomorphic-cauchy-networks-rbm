@@ -86,8 +86,9 @@ The parent directory includes logs and `summary.csv` / `summary.json`.
   allocator during the measured window, including model and optimizer state.
   These are not whole-device `nvidia-smi` readings and exclude non-PyTorch memory.
 - `base_inputs_per_second`: accounts for each method's actual sampling budget.
-- `tail_mre`: per-degree interval MRE. Only full-mode results are final-endpoint
-  accuracy measurements; short-run errors are integration diagnostics.
+- `tail_mre`: per-degree interval MRE from finite predictions clipped to [0, 1]. The output retains raw MRE and raw invalid counts alongside it. Only full-mode results are final-endpoint accuracy measurements; short-run errors are integration diagnostics.
+
+In `tail_predictions.csv`, the legacy `relative_error_percent` column is the raw error; `clipped_relative_error_percent` is the reported error. Raw and clipped probabilities are separate columns.
 
 Compare methods within the same dimension, hardware, mode and inversion degree.
 Report both time and final MRE for full runs. This runner does not preassign any
@@ -105,5 +106,4 @@ require explicit review and an updated lock.
 python benchmarks/test_runner.py
 ```
 
-The server GPU measurement remains to be executed; CPU smoke tests verify the
-integration, not GPU speed, peak memory, or full-run convergence.
+The 30D H100 profile measurement reported 0.165113 s/update and 7.805 GiB peak allocated for HCN versus 1.601046 s/update and 77.815 GiB for NN4MGF. This measured early-update throughput ratio is approximately 9.7×. The 58.2× full-schedule estimate is a projection from the measured profile and configured update counts, not a completed 300k-update baseline run. Re-running this harness requires a fresh matched GPU run; CPU smoke tests verify integration only.

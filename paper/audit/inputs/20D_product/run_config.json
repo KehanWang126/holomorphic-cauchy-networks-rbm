@@ -1,0 +1,90 @@
+{
+  "experiment_slug": "d20_skew_symmetric_product_form",
+  "dimension": 20,
+  "paper_seeds": [
+    12345,
+    22345,
+    32345
+  ],
+  "model": {
+    "d": 20,
+    "coord_embed_dim": 16,
+    "boundary_embed_dim": 16,
+    "interior_hidden_width": 128,
+    "boundary_hidden_width": 128,
+    "pair_chunk_size": 32768,
+    "boundary_anchor_mode": "hard_rbm_flow_balance"
+  },
+  "training": {
+    "optimizer": "Adam",
+    "steps": 25000,
+    "batch_bar": 2048,
+    "batch_boundary": 256,
+    "batch_monotonicity": 256,
+    "lr_phase1": 5e-05,
+    "lr_phase2": 1e-05,
+    "lr_switch_after_step": 20000,
+    "preserve_adam_state_at_lr_switch": true,
+    "gradient_clip": 1.0,
+    "lambda_bar": 1.0,
+    "lambda_boundary": 1.0,
+    "lambda_origin": 0.0,
+    "lambda_monotonicity": 1.0,
+    "lambda_imaginary": 1.0,
+    "monotonicity_real_domain": [
+      -0.5,
+      5.0
+    ],
+    "adaptive_bar_weight": {
+      "enabled": true,
+      "alpha": 0.3,
+      "epsilon": 1e-12,
+      "minimum": 0.5,
+      "maximum": 2.0
+    }
+  },
+  "sampler": {
+    "real_domain": [
+      -0.5,
+      5.0
+    ],
+    "imaginary_abs_max": 5.0,
+    "bar_mixture": {
+      "general_complex": 0.5,
+      "exact_complex_diagonal": 0.2,
+      "near_complex_diagonal": 0.2,
+      "positive_real_diagonal": 0.1
+    },
+    "near_diagonal_noise_scale": 0.05
+  },
+  "evaluation": {
+    "t_values": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "talbot_degrees": [
+      5,
+      8
+    ],
+    "primary_degree": 8,
+    "degree5_role": "numerical-inversion diagnostic and published-comparison bridge",
+    "raw_predictions": true,
+    "prediction_clipping": false,
+    "mpmath_decimal_digits": 100
+  },
+  "checkpoint_selection": "prespecified fixed step 25000 only",
+  "intermediate_checkpoint_evaluation": false,
+  "ground_truth_used_by_training": false,
+  "ground_truth_used_for_checkpoint_selection": false,
+  "active_training_seeds": [
+    12345
+  ]
+}

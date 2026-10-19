@@ -1,0 +1,118 @@
+{
+  "config": {
+    "seed": 12345,
+    "eval_seed": 1012348,
+    "d": 30,
+    "coord_embed_dim": 16,
+    "boundary_embed_dim": 16,
+    "interior_hidden_width": 128,
+    "boundary_hidden_width": 128,
+    "pair_chunk_size": 32768,
+    "start_step": 20000,
+    "steps": 30000,
+    "final_step": 50000,
+    "batch_bar": 1024,
+    "batch_bdary": 128,
+    "batch_mono": 128,
+    "eval_batch_bar": 2048,
+    "eval_batch_bdary": 256,
+    "eval_batch_mono": 256,
+    "lambda_bar": 1.0,
+    "lambda_bdary": 1.0,
+    "lambda_zero": 0.0,
+    "lambda_mono": 1.0,
+    "lambda_imag": 1.0,
+    "mono_re_min": -0.5,
+    "mono_re_max": 5.0,
+    "adaptive_bar_weight": true,
+    "bar_weight_alpha": 0.3,
+    "bar_weight_eps": 1e-12,
+    "bar_weight_min": 0.5,
+    "bar_weight_max": 2.0,
+    "lr": 1e-05,
+    "lr_stage1": 5e-05,
+    "lr_stage2": 1e-05,
+    "lr_transition_after_step": 40000,
+    "grad_clip": 1.0,
+    "eval_every_stage1": 500,
+    "save_every_stage1": 500,
+    "eval_every_stage2": 1000,
+    "save_every_stage2": 1000,
+    "run_name_prefix": "d30_general_pointmatched50k_from_step20000"
+  },
+  "learning_rate_schedule": [
+    {
+      "start_step": 20001,
+      "end_step": 40000,
+      "learning_rate": 5e-05
+    },
+    {
+      "start_step": 40001,
+      "end_step": 50000,
+      "learning_rate": 1e-05
+    }
+  ],
+  "training_sampler": {
+    "name": "original_general_mixed_BAR",
+    "BAR": {
+      "global_fraction": 0.5,
+      "complex_diagonal_fraction": 0.2,
+      "near_diagonal_fraction": 0.2,
+      "positive_real_diagonal_fraction": 0.1,
+      "real_range": [
+        -0.5,
+        5.0
+      ],
+      "imaginary_range": [
+        -5.0,
+        5.0
+      ]
+    },
+    "boundary": {
+      "source": "sample_training_theta",
+      "real_range": [
+        -0.5,
+        5.0
+      ],
+      "imaginary_range": [
+        -5.0,
+        5.0
+      ]
+    },
+    "monotonicity": {
+      "source": "sample_training_theta projected to real axis",
+      "real_range": [
+        -0.5,
+        5.0
+      ],
+      "imaginary_part": 0.0
+    },
+    "contains_special_inversion_nodes": false
+  },
+  "point_exposure_audit": {
+    "20D_target": {
+      "bar_high": 40960000,
+      "bar_low": 10240000,
+      "boundary_high": 5120000,
+      "boundary_low": 1280000,
+      "mono_high": 5120000,
+      "mono_low": 1280000
+    },
+    "30D_pointmatched": {
+      "bar_high": 40960000,
+      "bar_low": 10240000,
+      "boundary_high": 5120000,
+      "boundary_low": 1280000,
+      "mono_high": 5120000,
+      "mono_low": 1280000
+    }
+  },
+  "experiment_variant": "d30_general_pointmatched_20d",
+  "source_checkpoint": "historical source step-20,000 checkpoint (not redistributed)",
+  "source_completed_step": 20000,
+  "optimizer_state_inherited": true,
+  "fresh_optimizer_for_sampling_change": false,
+  "tail_or_ground_truth_used_for_selection": false,
+  "release_fixed_checkpoint": "checkpoint_step50000.pt",
+  "release_fixed_checkpoint_sha256": "0bfcd0dc11779fabd477fcf5ee9bf07772e555a9b10776618dc4e47a1106be1c"
+}

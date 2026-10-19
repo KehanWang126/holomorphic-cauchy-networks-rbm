@@ -14,8 +14,9 @@ of 64 million base inputs per run.
 |---|---|
 | [notebooks/](notebooks/) | Training and evaluation notebooks for 2D, 20D, 30D, and 50D |
 | [experiments/d20_activation_ablation/](experiments/d20_activation_ablation/) | Cauchy versus complex-tanh evaluation and six fixed checkpoints |
-| [results/](results/) | Predictions, error summaries, checkpoints, and training records |
-| [scripts/](scripts/) | Reconstruction of manuscript summaries and diagnostics |
+| [paper/](paper/) | Canonical manuscript tables, clipped predictions, and reproducible source-data audit |
+| [results/](results/) | Archived raw predictions, checkpoint hashes, and training records |
+| [scripts/](scripts/) | Rebuild and verification entry points; historical raw diagnostics remain archived |
 | [tests/](tests/) | Checkpoint and result verification |
 | [docs/](docs/) | Detailed reproduction instructions |
 
@@ -46,7 +47,7 @@ and select **Restart Kernel and Run All** to evaluate the six supplied
 
 ## Main results
 
-MRE denotes mean relative error. Ranges 1:5, 1:8, and 1:10 use integer
+MRE denotes mean relative error. Reported finite tail predictions are projected to [0, 1] before computing MRE; nonfinite outputs remain invalid. Raw predictions and raw invalid counts are preserved in [paper/data/](paper/data/) and are never used for checkpoint or seed selection. Ranges 1:5, 1:8, and 1:10 use integer
 thresholds starting at 1. Degree 8 is the primary evaluation rule from
 20D onward; Degree 5 is used for the 2D results and baseline comparisons.
 
@@ -68,9 +69,9 @@ standard deviation across seeds `12345`, `22345`, and `32345`, in percent.
 
 | Range | HCN MRE, mean ± SD | Archived NN4MGF MRE |
 |---|---:|---:|
-| 1:5 | 1.455% ± 1.306% | 2.802% |
-| 1:8 | 7.641% ± 1.568% | 8.148% |
-| 1:10 | 12.271% ± 3.690% | 18.908% |
+| 1:5 | 1.441% ± 1.322% | 2.802% |
+| 1:8 | 7.632% ± 1.565% | 8.148% |
+| 1:10 | 12.264% ± 3.678% | 18.908% |
 
 The [20D result directory](results/d20_skew_symmetric_product_form/)
 contains 60 HCN tail-probability evaluation records:
@@ -79,17 +80,14 @@ contains 60 HCN tail-probability evaluation records:
 ### Cauchy versus complex tanh at 20D
 
 Both activations use the same hidden widths, seed labels, 25,000-update
-endpoint, and 64M-input budget. Cauchy yields usable results in 3/3 runs
-and complex tanh in 2/3. The Degree-8 means below use the common successful
-seeds `12345` and `32345`.
+endpoint, and 64M-input budget. The Degree-8 clipped MREs below include all three prespecified seeds for both activations (`12345`, `22345`, `32345`). The raw predictions, including out-of-range values, remain available in the archived pointwise file and the paper audit.
 
 | Activation | 1:5 MRE (%) | 1:8 MRE (%) | 1:10 MRE (%) |
 |---|---:|---:|---:|
-| Cauchy | 1.933 | 7.465 | 10.308 |
-| Complex tanh | 10.045 | 24.138 | 49.136 |
+| Cauchy | 1.441 | 7.632 | 12.264 |
+| Complex tanh | 8.604 | 22.105 | 37.036 |
 
-[Activation results](results/d20_activation_ablation/) include the paired
-summaries, usable-run counts, and complete three-seed records.
+[Activation results](results/d20_activation_ablation/) retain the original raw evaluation. Canonical three-seed clipped summaries, individual predictions, and raw invalid counts are in [paper/data/](paper/data/).
 
 ### 30D
 
@@ -99,13 +97,13 @@ Under Degree 5, HCN has lower MRE than NN4MGF on all three ranges.
 | Method | Degree | 1:5 MRE (%) | 1:8 MRE (%) | 1:10 MRE (%) |
 |---|---:|---:|---:|---:|
 | NN4MGF (reported benchmark) | 5 | 8.353 | 10.476 | 21.507 |
-| HCN (comparison) | 5 | 3.691 | 10.270 | 19.215 |
+| HCN (comparison) | 5 | 3.429 | 10.107 | 19.084 |
 
 The same weights evaluated with the primary Degree-8 rule give:
 
 | Method | Degree | 1:5 MRE (%) | 1:8 MRE (%) | 1:10 MRE (%) |
 |---|---:|---:|---:|---:|
-| HCN (primary) | 8 | 1.685 | 6.547 | 8.873 |
+| HCN (primary) | 8 | 1.683 | 6.546 | 8.872 |
 
 ### 50D
 
@@ -115,10 +113,14 @@ and the same 64M-input budget.
 
 | Method | Degree | 1:5 MRE (%) | 1:8 MRE (%) | 1:10 MRE (%) |
 |---|---:|---:|---:|---:|
-| HCN (primary) | 8 | 1.504 | 6.373 | 8.015 |
+| HCN (primary) | 8 | 1.495 | 6.367 | 8.011 |
 
 Interval MREs remain below the corresponding 30D Degree-8 values as this
 benchmark is extended to 50 dimensions.
+
+### 10D non-product pilot
+
+One fixed seed (`12345`) at step 25,000 gives Degree-8 clipped MRE 1.710% on 1:5 and 3.684% on 1:8, versus 19.409% for the independent-marginal comparator on 1:8. The simulation reference is an **unverified pilot**, not an exact joint-tail ground truth; this exploratory result does not establish a multi-seed performance claim.
 
 ## Trained checkpoints
 
@@ -150,11 +152,11 @@ Run these commands from the repository root:
 # Recompute and check the six fixed 20D checkpoints
 python tests/test_d20_activation_ablation.py
 
-# Rebuild paired activation summaries from recorded predictions
-python scripts/build_paper_summaries.py
+# Verify source hashes and regenerate the canonical clipped tables (Python 3 stdlib)
+python paper/audit/audit_results.py
 
-# Rebuild the 80 signed error decompositions from recorded predictions
-python scripts/build_signed_diagnostics.py
+# Check that the published tables agree with the regenerated audit
+python scripts/build_paper_summaries.py
 ```
 
 See [reproduction instructions](docs/reproducibility.md) and
@@ -164,6 +166,6 @@ See [reproduction instructions](docs/reproducibility.md) and
 
 Use [benchmarks/](benchmarks/) to run HCN and pinned NN4MGF code on the same
 GPU at 20D and 30D. It provides smoke, profiling, and full-configuration modes.
-See [the Chinese handoff guide](benchmarks/给学长的运行说明.md) for commands.
+See the [benchmark instructions](benchmarks/README.md) for commands and interpretation.
 HCN uses seed 12345; NN4MGF runs without an explicit seed for 300,000 updates,
-retaining the public code's two batches per update.
+retaining the public code's two batches per update. The measured 30D H100 profile gave 0.165 s/update and 7.805 GiB allocated for HCN versus 1.601 s/update and 77.815 GiB for NN4MGF (9.7× initial-update throughput). A 58.2× full-schedule ratio is an extrapolation, not completed full-run timing.

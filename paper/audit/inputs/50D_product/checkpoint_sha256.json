@@ -1,0 +1,8 @@
+{
+  "file": "checkpoint_step100000.pt",
+  "sha256": "669c9bc1b2188241e47e78ee5a23bfaa690a86233529b8eef340daf11cf79b0a",
+  "source_archive_sha256": "7a4b698475eb1bf9d2010167a94655e1a30882fcb19d7f9219f818d623d150b4",
+  "source_member": "d50_general_100k_batch512_80k5e-5_20k1e-5_20260806_205353/d50_general_step100000.pt",
+  "seed": 12345,
+  "step": 100000
+}

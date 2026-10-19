@@ -106,15 +106,26 @@ def evaluate(model, method, d, device, torch):
         for threshold in range(1, 11):
             truth = -math.expm1(d*math.log1p(-math.exp(-threshold)))
             value = float(mp.invertlaplace(tail_transform, threshold, method='talbot', degree=degree))
+            finite = math.isfinite(value)
+            clipped = min(1.0, max(0.0, value)) if finite else None
             rows.append(dict(degree=degree, t=threshold, true_value=truth,
-                             raw_prediction=value if math.isfinite(value) else None,
-                             relative_error_percent=100*abs(value-truth)/truth if math.isfinite(value) else None))
+                             raw_prediction=value if finite else None,
+                             clipped_prediction=clipped,
+                             raw_invalid=(not finite or not 0.0 <= value <= 1.0),
+                             relative_error_percent=100*abs(value-truth)/truth if finite else None,
+                             clipped_relative_error_percent=100*abs(clipped-truth)/truth if finite else None))
     summaries = []
     for degree in (5, 8):
         for end in (5, 8, 10):
-            vals = [r['relative_error_percent'] for r in rows if r['degree']==degree and r['t']<=end]
+            points = [r for r in rows if r['degree']==degree and r['t']<=end]
+            raw_vals = [r['relative_error_percent'] for r in points]
+            clipped_vals = [r['clipped_relative_error_percent'] for r in points]
+            raw_mre = statistics.mean(raw_vals) if all(v is not None for v in raw_vals) else None
+            clipped_mre = statistics.mean(clipped_vals) if all(v is not None for v in clipped_vals) else None
             summaries.append(dict(degree=degree, interval=f'1:{end}',
-                                  mre_percent=statistics.mean(vals) if all(v is not None for v in vals) else None))
+                                  mre_percent=clipped_mre, raw_mre_percent=raw_mre,
+                                  clipped_mre_percent=clipped_mre,
+                                  raw_invalid_count=sum(r['raw_invalid'] for r in points)))
     return rows, summaries
 
 def validate_nn_config(config):

@@ -1,0 +1,737 @@
+{
+  "date": "2026-10-03",
+  "source_archive": {
+    "filename": "formal experiment.zip",
+    "sha256": "b2c1de752ba140126638ef40dd6a140abb5ef95ea642ad6f2fe43c14e437e0af"
+  },
+  "policy": {
+    "clipping": "finite real predictions projected to [0,1]",
+    "nonfinite": "unavailable; never silently clipped or omitted",
+    "primary_10d_seed": 12345,
+    "excluded_10d_seeds": [
+      22345,
+      32345
+    ],
+    "excluded_experiment": "30D_non_product: not inspected",
+    "old_draft_30d_50d": "use fixed-endpoint source CSVs, per user instruction"
+  },
+  "datasets": [
+    {
+      "file": "inputs/2D_product/hcn.csv",
+      "benchmark": "2D_product",
+      "dimension": 2,
+      "method": "HCN",
+      "role": "model",
+      "origin": "formal_archive",
+      "seed": "12345",
+      "step": 15000,
+      "degree": 5
+    },
+    {
+      "file": "inputs/2D_product/nn4mgf_published.csv",
+      "benchmark": "2D_product",
+      "dimension": 2,
+      "method": "NN4MGF_published",
+      "role": "baseline",
+      "origin": "formal_archive",
+      "seed": "published",
+      "step": "",
+      "degree": 5
+    },
+    {
+      "file": "inputs/2D_Harrison/hcn.csv",
+      "benchmark": "2D_Harrison",
+      "dimension": 2,
+      "method": "HCN",
+      "role": "model",
+      "origin": "formal_archive",
+      "seed": "12345",
+      "step": 15000,
+      "degree": 5
+    },
+    {
+      "file": "inputs/2D_Harrison/nn4mgf_published.csv",
+      "benchmark": "2D_Harrison",
+      "dimension": 2,
+      "method": "NN4MGF_published",
+      "role": "baseline",
+      "origin": "formal_archive",
+      "seed": "published",
+      "step": "",
+      "degree": 5
+    },
+    {
+      "file": "inputs/10D_nonproduct/hcn.csv",
+      "benchmark": "10D_nonproduct",
+      "dimension": 10,
+      "method": "HCN_interaction",
+      "role": "model",
+      "origin": "formal_archive",
+      "seed": "12345",
+      "step": 25000,
+      "reference_status": "unverified_pilot"
+    },
+    {
+      "file": "inputs/20D_product/hcn_activation.csv",
+      "benchmark": "20D_product",
+      "dimension": 20,
+      "method": "from_row",
+      "role": "model_or_control",
+      "origin": "formal_archive"
+    },
+    {
+      "file": "inputs/20D_product/exact_transform.csv",
+      "benchmark": "20D_product",
+      "dimension": 20,
+      "method": "Exact_transform",
+      "role": "inversion_diagnostic",
+      "origin": "formal_archive",
+      "seed": "analytic",
+      "step": ""
+    },
+    {
+      "file": "inputs/20D_product/nn4mgf_archived.csv",
+      "benchmark": "20D_product",
+      "dimension": 20,
+      "method": "NN4MGF_archived",
+      "role": "baseline",
+      "origin": "formal_archive",
+      "seed": "official",
+      "step": ""
+    },
+    {
+      "file": "inputs/30D_product/hcn.csv",
+      "benchmark": "30D_product",
+      "dimension": 30,
+      "method": "HCN",
+      "role": "model",
+      "origin": "prior_draft_source_data",
+      "seed": "12345",
+      "step": 50000
+    },
+    {
+      "file": "inputs/30D_product/exact_transform.csv",
+      "benchmark": "30D_product",
+      "dimension": 30,
+      "method": "Exact_transform",
+      "role": "inversion_diagnostic",
+      "origin": "prior_draft_source_data",
+      "seed": "analytic",
+      "step": ""
+    },
+    {
+      "file": "inputs/30D_product/nn4mgf_published.csv",
+      "benchmark": "30D_product",
+      "dimension": 30,
+      "method": "NN4MGF_published",
+      "role": "baseline",
+      "origin": "prior_draft_source_data",
+      "seed": "published",
+      "step": "",
+      "degree": 5
+    },
+    {
+      "file": "inputs/50D_product/hcn.csv",
+      "benchmark": "50D_product",
+      "dimension": 50,
+      "method": "HCN",
+      "role": "model",
+      "origin": "prior_draft_source_data",
+      "seed": "12345",
+      "step": 100000
+    },
+    {
+      "file": "inputs/50D_product/exact_transform.csv",
+      "benchmark": "50D_product",
+      "dimension": 50,
+      "method": "Exact_transform",
+      "role": "inversion_diagnostic",
+      "origin": "prior_draft_source_data",
+      "seed": "analytic",
+      "step": ""
+    },
+    {
+      "file": "inputs/50D_trajectory/hcn.csv",
+      "benchmark": "50D_product",
+      "dimension": 50,
+      "method": "HCN",
+      "role": "trajectory",
+      "origin": "prior_draft_source_data",
+      "seed": "12345"
+    }
+  ],
+  "files": [
+    {
+      "file": "inputs/2D_product/hcn.csv",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/2D_skew_symmetric/outputs/d2_skew_symmetric_product_form_20260904_145459_897629/pointwise_degree5.csv",
+      "sha256": "9060a66823bc6cd5ba49f22d0bfb097f852dff336c87e3892954e57e60061582"
+    },
+    {
+      "file": "inputs/2D_product/nn4mgf_published.csv",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/2D_skew_symmetric/outputs/d2_skew_symmetric_product_form_20260904_145459_897629/published_nn4mgf_degree5.csv",
+      "sha256": "a81730809475c568daa8db84fee1b72c13d8b220276d46c89f2b15641e7e81de"
+    },
+    {
+      "file": "inputs/2D_product/run_config.json",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/2D_skew_symmetric/outputs/d2_skew_symmetric_product_form_20260904_145459_897629/run_config.json",
+      "sha256": "764c279b00daf1e0e6aecb2c938ecaab9b27f2719efdd116bde1494090032d7f"
+    },
+    {
+      "file": "inputs/2D_Harrison/hcn.csv",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/2D_harrison/outputs/d2_harrison_nonproduct_global_cauchy_20260904_220028_363541/pointwise_degree5.csv",
+      "sha256": "1beea9789b83dcedcfef46e3a7dbf37cd3da6c18bfccdc74d118e0f9efb07a3d"
+    },
+    {
+      "file": "inputs/2D_Harrison/nn4mgf_published.csv",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/2D_harrison/outputs/d2_harrison_nonproduct_global_cauchy_20260904_220028_363541/published_nn4mgf_degree5.csv",
+      "sha256": "77aa924ccfd30a0edb17cefc9286ce1c7bec452935c8024acf5affc1dfc41797"
+    },
+    {
+      "file": "inputs/2D_Harrison/run_config.json",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/2D_harrison/outputs/d2_harrison_nonproduct_global_cauchy_20260904_220028_363541/run_config.json",
+      "sha256": "d1dc9440e63d94c7f1b52a5721e73a8b4bac8f0a02d0598359b1c7c75acf4561"
+    },
+    {
+      "file": "inputs/10D_nonproduct/hcn.csv",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/10D_non_product/outputs/d10_interaction_20260918_001016_399367/pointwise.csv",
+      "sha256": "0636d4e9be56f8a1baf259481ad0d8c96bf36cfd982997599b05643e62c33c9b"
+    },
+    {
+      "file": "inputs/10D_nonproduct/config.json",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/10D_non_product/outputs/d10_interaction_20260918_001016_399367/config.json",
+      "sha256": "74ebd27c98c3eb1d0b0918d5d4c82d940cade24e37bd92943b2c55605d7d2af2"
+    },
+    {
+      "file": "inputs/10D_nonproduct/reference_used.json",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/10D_non_product/outputs/d10_interaction_20260918_001016_399367/reference_used.json",
+      "sha256": "83f7e18232d767a443ddfbefcfc72ccdf61ed3b261ad3bcefdfac9d59fa8a4ef"
+    },
+    {
+      "file": "inputs/10D_nonproduct/summary.json",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/10D_non_product/outputs/d10_interaction_20260918_001016_399367/summary.json",
+      "sha256": "c6cb92214242431824f312e97eb32d6153b3d226a61df81e564c7eed4c2ed694"
+    },
+    {
+      "file": "inputs/10D_nonproduct/preflight.json",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/10D_non_product/outputs/d10_interaction_20260918_001016_399367/preflight.json",
+      "sha256": "fd40c12f25cc382b16ba9a9455a40e1721f331f1bb1f6b51b4f04e84e9a2cb70"
+    },
+    {
+      "file": "inputs/20D_product/hcn_activation.csv",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/pointwise.csv",
+      "sha256": "3d480c2b66cb3ff2359121f8401e549f4fd84f67c9505d30f4ca9bb58898ca4f"
+    },
+    {
+      "file": "inputs/20D_product/exact_transform.csv",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/exact_transform_diagnostic.csv",
+      "sha256": "3fb02abc643d256f0270ca68d7fa73314354fdf77d28e9296f83cfa4c37acd4f"
+    },
+    {
+      "file": "inputs/20D_product/nn4mgf_archived.csv",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/20D_skew_symmetric/d20_ablation_evaluate/reference/nn4mgf_archived_pointwise.csv",
+      "sha256": "db56a42f656a7e6f6a822d783c866cb103dcec63fda00e8d9a80f22c660bf116"
+    },
+    {
+      "file": "inputs/20D_product/checkpoint_manifest.json",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/20D_skew_symmetric/d20_ablation_evaluate/checkpoint_manifest.json",
+      "sha256": "c72278012b3ae1bcd47b7f8b487148232662c81b07cbdc6131e4eae6d16ab0b9"
+    },
+    {
+      "file": "inputs/20D_product/nn4mgf_provenance.json",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/20D_skew_symmetric/d20_ablation_evaluate/reference/provenance.json",
+      "sha256": "cc4ede35eb26dc9dfee16a1b0a7cfc99eaa63dbeb3b98e531e818b63ff5fb00e"
+    },
+    {
+      "file": "inputs/20D_product/run_config.json",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/20D_skew_symmetric/outputs/d20_skew_symmetric_product_form_20260905T040712Z/run_config.json",
+      "sha256": "2e2a27440bc5c5b85cab162022598cad8156c9a6c3d132f61d1f0faa3575077a"
+    },
+    {
+      "file": "inputs/30D_product/hcn.csv",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d30_skew_symmetric_product_form/checkpoint_pointwise.csv",
+      "sha256": "f62f8d0eaf90bb2c5a940d3f5f042ac884b0144403838310ada83872c69b5dbc"
+    },
+    {
+      "file": "inputs/30D_product/exact_transform.csv",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d30_skew_symmetric_product_form/exact_transform_diagnostic.csv",
+      "sha256": "022ef429ad696b540fdf092092ae71cc803d7f46d0b49bdd5c3c205425f56f02"
+    },
+    {
+      "file": "inputs/30D_product/nn4mgf_published.csv",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d30_skew_symmetric_product_form/published_nn4mgf_degree5.csv",
+      "sha256": "ad9fb574c090ac2ea07cba593a4d50b3dbd5e925850c3adedb554483b36e45ad"
+    },
+    {
+      "file": "inputs/30D_product/run_config.json",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d30_skew_symmetric_product_form/run_config.json",
+      "sha256": "c7904418bbf1f99104443eb48def162fd651dd5785e63d9a8168b2c92682516b"
+    },
+    {
+      "file": "inputs/30D_product/evaluation_report.json",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d30_skew_symmetric_product_form/evaluation_report.json",
+      "sha256": "12e0b208b00642cbab94ce2e6909650498d31d115e0cb3420f752baa329608ca"
+    },
+    {
+      "file": "inputs/30D_product/checkpoint_sha256.json",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d30_skew_symmetric_product_form/checkpoint_sha256.json",
+      "sha256": "0eb088485d7e5781be3876530ce89011d3641ebfcaa9a92fbf4eb560da933d53"
+    },
+    {
+      "file": "inputs/30D_product/README.md",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d30_skew_symmetric_product_form/README.md",
+      "sha256": "de101fd9769043d63461c52aa3b6a41ec25080ed1df0853c17db1f04e974bed0"
+    },
+    {
+      "file": "inputs/50D_product/hcn.csv",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d50_skew_symmetric_product_form/checkpoint_pointwise.csv",
+      "sha256": "4e00171003b3933598304286d4f1a5bc0efb43b10d9db560fb46b3fe953a6394"
+    },
+    {
+      "file": "inputs/50D_product/exact_transform.csv",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d50_skew_symmetric_product_form/exact_transform_diagnostic.csv",
+      "sha256": "6aaf16da1bac0e710b02f0372fd739b77969ada29ced86f65e1e27761f7c698f"
+    },
+    {
+      "file": "inputs/50D_product/run_config.json",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d50_skew_symmetric_product_form/run_config.json",
+      "sha256": "08f5cfddb8acd1436320081a6fce932b05aa1d52e6b6bf1d8624de24c5c51b9f"
+    },
+    {
+      "file": "inputs/50D_product/evaluation_report.json",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d50_skew_symmetric_product_form/evaluation_report.json",
+      "sha256": "1f138ef9d8fb44226620a437e67d9cbe8d1e596195e85123326f819a5b3e0daa"
+    },
+    {
+      "file": "inputs/50D_product/checkpoint_sha256.json",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d50_skew_symmetric_product_form/checkpoint_sha256.json",
+      "sha256": "2e0d9ae400b10f0468c8cf0e1f5608f1957263768deaaa536754885ea9e3d4eb"
+    },
+    {
+      "file": "inputs/50D_product/README.md",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d50_skew_symmetric_product_form/README.md",
+      "sha256": "b812d2d3476901187147ea4af09d5f58c68e52b494f7b34bc4e477ba7c28c7fe"
+    },
+    {
+      "file": "inputs/50D_trajectory/hcn.csv",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d50_late_training_stability/checkpoint_tail_pointwise.csv",
+      "sha256": "3735f133ce6ae492ab6ee49ce2aef0841c527cd7b3e84729a56baec5a9a8bb09"
+    },
+    {
+      "file": "inputs/50D_trajectory/source_checkpoint_hashes.csv",
+      "origin": "prior_draft_source_data",
+      "original_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d50_late_training_stability/source_checkpoint_hashes.csv",
+      "sha256": "d00e666ee50692a4eef0ae801533bac2dcd6a73f6d8bf8226b821fa0c20f6f8f"
+    },
+    {
+      "file": "inputs/runtime/HCN.json",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/run time comparison/benchmark_30d_same_gpu_profile/profile_hcn_d30_20261001_115209/report.json",
+      "sha256": "3bccc661a2ca317f13578b447bc713b529c12790989c823dc809f8fd9bd325aa"
+    },
+    {
+      "file": "inputs/runtime/NN4MGF.json",
+      "origin": "formal_archive",
+      "original_path": "audit_formal_20261003/source/formal experiment/run time comparison/benchmark_30d_same_gpu_profile/profile_nn4mgf_d30_20261001_115246/report.json",
+      "sha256": "21d13642dc24cd7cfc3666908752865602c52d3e1f36331fb8adfd3ba7bef79f"
+    }
+  ],
+  "duplicate_checks": [
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/pointwise.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260906_235613_5280b2/pointwise.csv",
+      "sha256": "3d480c2b66cb3ff2359121f8401e549f4fd84f67c9505d30f4ca9bb58898ca4f"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/pointwise.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/pointwise.csv",
+      "sha256": "3d480c2b66cb3ff2359121f8401e549f4fd84f67c9505d30f4ca9bb58898ca4f"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/pointwise.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260906_235231_9e92c5/pointwise.csv",
+      "sha256": "3d480c2b66cb3ff2359121f8401e549f4fd84f67c9505d30f4ca9bb58898ca4f"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/summary.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260906_235613_5280b2/summary.csv",
+      "sha256": "08c095fed23dadd69d89fb575c622effc6c5bae5d7cfe6295be286ee86e4edd5"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/summary.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/summary.csv",
+      "sha256": "08c095fed23dadd69d89fb575c622effc6c5bae5d7cfe6295be286ee86e4edd5"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/summary.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260906_235231_9e92c5/summary.csv",
+      "sha256": "08c095fed23dadd69d89fb575c622effc6c5bae5d7cfe6295be286ee86e4edd5"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/multiseed_summary.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260906_235613_5280b2/multiseed_summary.csv",
+      "sha256": "cbe3a7b316fff17539af43e030f39fa44fba2eb1fb3239f8076e58547c9dad8d"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/multiseed_summary.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/multiseed_summary.csv",
+      "sha256": "cbe3a7b316fff17539af43e030f39fa44fba2eb1fb3239f8076e58547c9dad8d"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/multiseed_summary.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260906_235231_9e92c5/multiseed_summary.csv",
+      "sha256": "cbe3a7b316fff17539af43e030f39fa44fba2eb1fb3239f8076e58547c9dad8d"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/exact_transform_diagnostic.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260906_235613_5280b2/exact_transform_diagnostic.csv",
+      "sha256": "3fb02abc643d256f0270ca68d7fa73314354fdf77d28e9296f83cfa4c37acd4f"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/exact_transform_diagnostic.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/exact_transform_diagnostic.csv",
+      "sha256": "3fb02abc643d256f0270ca68d7fa73314354fdf77d28e9296f83cfa4c37acd4f"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/exact_transform_diagnostic.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260906_235231_9e92c5/exact_transform_diagnostic.csv",
+      "sha256": "3fb02abc643d256f0270ca68d7fa73314354fdf77d28e9296f83cfa4c37acd4f"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/exact_transform_summary.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260906_235613_5280b2/exact_transform_summary.csv",
+      "sha256": "834cc3e670b33de189844c5b71d95a4b5f136a535c5c7810a90e9198c38a126f"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/exact_transform_summary.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/exact_transform_summary.csv",
+      "sha256": "834cc3e670b33de189844c5b71d95a4b5f136a535c5c7810a90e9198c38a126f"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/exact_transform_summary.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260906_235231_9e92c5/exact_transform_summary.csv",
+      "sha256": "834cc3e670b33de189844c5b71d95a4b5f136a535c5c7810a90e9198c38a126f"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/nn4mgf_archived_summary.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260906_235613_5280b2/nn4mgf_archived_summary.csv",
+      "sha256": "0a7731ac6489b8d8e05e7892be7cb9691f7fc64f0539ffc82bb04898dcf6c9a5"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/nn4mgf_archived_summary.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/nn4mgf_archived_summary.csv",
+      "sha256": "0a7731ac6489b8d8e05e7892be7cb9691f7fc64f0539ffc82bb04898dcf6c9a5"
+    },
+    {
+      "canonical": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260907_023629_c73f52/nn4mgf_archived_summary.csv",
+      "alias": "20D_skew_symmetric/d20_ablation_evaluate/outputs/evaluation_20260906_235231_9e92c5/nn4mgf_archived_summary.csv",
+      "sha256": "0a7731ac6489b8d8e05e7892be7cb9691f7fc64f0539ffc82bb04898dcf6c9a5"
+    }
+  ],
+  "checkpoint_hash_checks": [
+    {
+      "source_path": "audit_formal_20261003/source/formal experiment/20D_skew_symmetric/d20_ablation_evaluate/checkpoints/cauchy_seed12345_step25000.pt",
+      "sha256": "78e4301ea88ae808bfca5c503f243dbd2a7b6acd405e494ca033e8797c5b37f0",
+      "verified": true,
+      "unpickled": false
+    },
+    {
+      "source_path": "audit_formal_20261003/source/formal experiment/20D_skew_symmetric/d20_ablation_evaluate/checkpoints/cauchy_seed22345_step25000.pt",
+      "sha256": "7a9e944407110f6fca9c4f812d7118b9834b80ee0d7438f56ddcb686188a0bd8",
+      "verified": true,
+      "unpickled": false
+    },
+    {
+      "source_path": "audit_formal_20261003/source/formal experiment/20D_skew_symmetric/d20_ablation_evaluate/checkpoints/cauchy_seed32345_step25000.pt",
+      "sha256": "24fa37cb2291a616bcaadd3529cb562e49d2cb8952b4d32682d80e199be49d84",
+      "verified": true,
+      "unpickled": false
+    },
+    {
+      "source_path": "audit_formal_20261003/source/formal experiment/20D_skew_symmetric/d20_ablation_evaluate/checkpoints/tanh_seed12345_step25000.pt",
+      "sha256": "9fc9d6e20635d6870e5a7e731737826730ed41c9ef23c5861fafda0dac7c5df0",
+      "verified": true,
+      "unpickled": false
+    },
+    {
+      "source_path": "audit_formal_20261003/source/formal experiment/20D_skew_symmetric/d20_ablation_evaluate/checkpoints/tanh_seed22345_step25000.pt",
+      "sha256": "cce3a334c61f90401d7936a281e96ca0cb08f24c5c33dcfdbdec639b8ea8e385",
+      "verified": true,
+      "unpickled": false
+    },
+    {
+      "source_path": "audit_formal_20261003/source/formal experiment/20D_skew_symmetric/d20_ablation_evaluate/checkpoints/tanh_seed32345_step25000.pt",
+      "sha256": "1b03f0cb3f31bd5e00ecff826a0535da5414c2a1d899b73e9a52875b544dab3a",
+      "verified": true,
+      "unpickled": false
+    },
+    {
+      "source_path": "audit_formal_20261003/source/formal experiment/10D_non_product/outputs/d10_interaction_20260918_001016_399367/checkpoint_step25000.pt",
+      "sha256": "32603c1c46c3f6e239807c60a2395535ac9bfa90800f7cd2743ed5e2f480db26",
+      "verified": true,
+      "unpickled": false
+    },
+    {
+      "source_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d30_skew_symmetric_product_form/checkpoint_step50000.pt",
+      "sha256": "0bfcd0dc11779fabd477fcf5ee9bf07772e555a9b10776618dc4e47a1106be1c",
+      "verified": true,
+      "unpickled": false
+    },
+    {
+      "source_path": "review30/holomorphic-cauchy-networks-rbm-main/results/d50_skew_symmetric_product_form/checkpoint_step100000.pt",
+      "sha256": "669c9bc1b2188241e47e78ee5a23bfaa690a86233529b8eef340daf11cf79b0a",
+      "verified": true,
+      "unpickled": false
+    }
+  ],
+  "code_ast_checks": [
+    {
+      "new_source": "audit_formal_20261003/inspection/20D_skew_symmetric__9bf4e6.py",
+      "previous_source": "review30/holomorphic-cauchy-networks-rbm-main/notebooks/d20_skew_symmetric_product_form.ipynb",
+      "unit": "compute_gammas",
+      "ast_equal": true,
+      "ast_sha256": "a010d069f6350631485f751d45f107b7a5328f5aaf33f92e3adcbdc088359225"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/20D_skew_symmetric__9bf4e6.py",
+      "previous_source": "review30/holomorphic-cauchy-networks-rbm-main/notebooks/d20_skew_symmetric_product_form.ipynb",
+      "unit": "CauchyComplex",
+      "ast_equal": true,
+      "ast_sha256": "6cb3456495c4eabd5cfc3f2498bcf1bdf27778edfbb36a136de694d89ac38e70"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/20D_skew_symmetric__9bf4e6.py",
+      "previous_source": "review30/holomorphic-cauchy-networks-rbm-main/notebooks/d20_skew_symmetric_product_form.ipynb",
+      "unit": "CoordinateCauchyScalarNet",
+      "ast_equal": true,
+      "ast_sha256": "ef48ee8d0db0ee58f3abc433bd766483f6020772d84c5ac02961be714430ab2d"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/20D_skew_symmetric__9bf4e6.py",
+      "previous_source": "review30/holomorphic-cauchy-networks-rbm-main/notebooks/d20_skew_symmetric_product_form.ipynb",
+      "unit": "StructuredCoordinateCauchyMGF",
+      "ast_equal": true,
+      "ast_sha256": "03c84f9db300408802bc2048e1fa7dcf249d1836bbe88a12ca549a618a0cc8aa"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/20D_skew_symmetric__9bf4e6.py",
+      "previous_source": "review30/holomorphic-cauchy-networks-rbm-main/notebooks/d20_skew_symmetric_product_form.ipynb",
+      "unit": "construct_boundary_directions",
+      "ast_equal": true,
+      "ast_sha256": "19063b8ef82a0a6e6670a7b8685669a5994d01d993df775847db47ca565a2f13"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/20D_skew_symmetric__9bf4e6.py",
+      "previous_source": "review30/holomorphic-cauchy-networks-rbm-main/notebooks/d20_skew_symmetric_product_form.ipynb",
+      "unit": "compute_bar_pointwise",
+      "ast_equal": true,
+      "ast_sha256": "fd8d6e14a28ce597fda62b95d8bf6454ba7e31b149406583078859de8da8c6fa"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/20D_skew_symmetric__9bf4e6.py",
+      "previous_source": "review30/holomorphic-cauchy-networks-rbm-main/notebooks/d20_skew_symmetric_product_form.ipynb",
+      "unit": "weighted_normalized_mean",
+      "ast_equal": true,
+      "ast_sha256": "2e220d65b32746c97baddb73ff090351c0a3493acbb9c80a3ef52a4d2b245d6d"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/20D_skew_symmetric__9bf4e6.py",
+      "previous_source": "review30/holomorphic-cauchy-networks-rbm-main/notebooks/d20_skew_symmetric_product_form.ipynb",
+      "unit": "boundary_face_residual_from_f",
+      "ast_equal": true,
+      "ast_sha256": "4e6ae3e91095a739894b48a8cd49d35ad4bbacc9861d3c7640b4401784fb89b7"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/20D_skew_symmetric__9bf4e6.py",
+      "previous_source": "review30/holomorphic-cauchy-networks-rbm-main/notebooks/d20_skew_symmetric_product_form.ipynb",
+      "unit": "compute_monotonicity_components_analytical_from_theta_real",
+      "ast_equal": true,
+      "ast_sha256": "8006d61f865764ae3075fb23d21c802965e3d4c13683337171b8c917dd40ecd2"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/20D_skew_symmetric__9bf4e6.py",
+      "previous_source": "review30/holomorphic-cauchy-networks-rbm-main/notebooks/d20_skew_symmetric_product_form.ipynb",
+      "unit": "compute_monotonicity_components_analytical",
+      "ast_equal": true,
+      "ast_sha256": "01927703d4ac27c1fb725cff559140475208db68d770326ee2a3f850efae7296"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/2D_harrison__673b1a.py",
+      "previous_source": "upload/d2_harrison_nonproduct_global_cauchy.ipynb",
+      "unit": "compute_gammas",
+      "ast_equal": true,
+      "ast_sha256": "f8b8f8461b0948ea8a737a908f0578ce95f4ec5d31c7e22d56afbfde8d33dc86"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/2D_harrison__673b1a.py",
+      "previous_source": "upload/d2_harrison_nonproduct_global_cauchy.ipynb",
+      "unit": "CauchyComplex",
+      "ast_equal": true,
+      "ast_sha256": "36afb16818dc78c6fd95c9026dccb390f500fa631397794ed1fe639affbaf8f6"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/2D_harrison__673b1a.py",
+      "previous_source": "upload/d2_harrison_nonproduct_global_cauchy.ipynb",
+      "unit": "HolomorphicCauchyScalarNet",
+      "ast_equal": true,
+      "ast_sha256": "98c3d750222e09628fabdb2ed4fe0a71217cee01206b431f5a6b734061c948c9"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/2D_harrison__673b1a.py",
+      "previous_source": "upload/d2_harrison_nonproduct_global_cauchy.ipynb",
+      "unit": "StructuredNonproductGlobalCauchyMGF",
+      "ast_equal": true,
+      "ast_sha256": "ed6f7d18b971f7e36961689ffa8c0f39945fc106d4a10f2225d142a126039bc1"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/2D_harrison__673b1a.py",
+      "previous_source": "upload/d2_harrison_nonproduct_global_cauchy.ipynb",
+      "unit": "construct_boundary_directions",
+      "ast_equal": true,
+      "ast_sha256": "19063b8ef82a0a6e6670a7b8685669a5994d01d993df775847db47ca565a2f13"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/2D_harrison__673b1a.py",
+      "previous_source": "upload/d2_harrison_nonproduct_global_cauchy.ipynb",
+      "unit": "compute_bar_pointwise",
+      "ast_equal": true,
+      "ast_sha256": "fd8d6e14a28ce597fda62b95d8bf6454ba7e31b149406583078859de8da8c6fa"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/2D_harrison__673b1a.py",
+      "previous_source": "upload/d2_harrison_nonproduct_global_cauchy.ipynb",
+      "unit": "weighted_normalized_mean",
+      "ast_equal": true,
+      "ast_sha256": "2e220d65b32746c97baddb73ff090351c0a3493acbb9c80a3ef52a4d2b245d6d"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/2D_harrison__673b1a.py",
+      "previous_source": "upload/d2_harrison_nonproduct_global_cauchy.ipynb",
+      "unit": "boundary_face_residual_from_f",
+      "ast_equal": true,
+      "ast_sha256": "4e6ae3e91095a739894b48a8cd49d35ad4bbacc9861d3c7640b4401784fb89b7"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/2D_harrison__673b1a.py",
+      "previous_source": "upload/d2_harrison_nonproduct_global_cauchy.ipynb",
+      "unit": "compute_monotonicity_components_analytical_from_theta_real",
+      "ast_equal": true,
+      "ast_sha256": "8006d61f865764ae3075fb23d21c802965e3d4c13683337171b8c917dd40ecd2"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/2D_harrison__673b1a.py",
+      "previous_source": "upload/d2_harrison_nonproduct_global_cauchy.ipynb",
+      "unit": "compute_monotonicity_components_analytical",
+      "ast_equal": true,
+      "ast_sha256": "5e1d2a40d1d6cd512a8f3c7b10b5f2c420826e902e680ae3d51905bfbc6c8e76"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/10D_non_product__596b04.py",
+      "previous_source": "upload/d10_correlated_nonproduct_hcn-checkpoint.ipynb",
+      "unit": "compute_gammas",
+      "ast_equal": true,
+      "ast_sha256": "f8b8f8461b0948ea8a737a908f0578ce95f4ec5d31c7e22d56afbfde8d33dc86"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/10D_non_product__596b04.py",
+      "previous_source": "upload/d10_correlated_nonproduct_hcn-checkpoint.ipynb",
+      "unit": "CauchyComplex",
+      "ast_equal": true,
+      "ast_sha256": "36afb16818dc78c6fd95c9026dccb390f500fa631397794ed1fe639affbaf8f6"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/10D_non_product__596b04.py",
+      "previous_source": "upload/d10_correlated_nonproduct_hcn-checkpoint.ipynb",
+      "unit": "HolomorphicCauchyScalarNet",
+      "ast_equal": true,
+      "ast_sha256": "98c3d750222e09628fabdb2ed4fe0a71217cee01206b431f5a6b734061c948c9"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/10D_non_product__596b04.py",
+      "previous_source": "upload/d10_correlated_nonproduct_hcn-checkpoint.ipynb",
+      "unit": "StructuredNonproductGlobalCauchyMGF",
+      "ast_equal": true,
+      "ast_sha256": "ed6f7d18b971f7e36961689ffa8c0f39945fc106d4a10f2225d142a126039bc1"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/10D_non_product__596b04.py",
+      "previous_source": "upload/d10_correlated_nonproduct_hcn-checkpoint.ipynb",
+      "unit": "D10HCN",
+      "ast_equal": true,
+      "ast_sha256": "e628bde40df3a302c59f3d3c79a7cfbcaeb60b2bd06857d48e99ad6741b21bc5"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/10D_non_product__596b04.py",
+      "previous_source": "upload/d10_correlated_nonproduct_hcn-checkpoint.ipynb",
+      "unit": "construct_boundary_directions",
+      "ast_equal": true,
+      "ast_sha256": "19063b8ef82a0a6e6670a7b8685669a5994d01d993df775847db47ca565a2f13"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/10D_non_product__596b04.py",
+      "previous_source": "upload/d10_correlated_nonproduct_hcn-checkpoint.ipynb",
+      "unit": "compute_bar_pointwise",
+      "ast_equal": true,
+      "ast_sha256": "fd8d6e14a28ce597fda62b95d8bf6454ba7e31b149406583078859de8da8c6fa"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/10D_non_product__596b04.py",
+      "previous_source": "upload/d10_correlated_nonproduct_hcn-checkpoint.ipynb",
+      "unit": "weighted_normalized_mean",
+      "ast_equal": true,
+      "ast_sha256": "2e220d65b32746c97baddb73ff090351c0a3493acbb9c80a3ef52a4d2b245d6d"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/10D_non_product__596b04.py",
+      "previous_source": "upload/d10_correlated_nonproduct_hcn-checkpoint.ipynb",
+      "unit": "boundary_face_residual_from_f",
+      "ast_equal": true,
+      "ast_sha256": "4e6ae3e91095a739894b48a8cd49d35ad4bbacc9861d3c7640b4401784fb89b7"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/10D_non_product__596b04.py",
+      "previous_source": "upload/d10_correlated_nonproduct_hcn-checkpoint.ipynb",
+      "unit": "compute_monotonicity_components_analytical_from_theta_real",
+      "ast_equal": true,
+      "ast_sha256": "8006d61f865764ae3075fb23d21c802965e3d4c13683337171b8c917dd40ecd2"
+    },
+    {
+      "new_source": "audit_formal_20261003/inspection/10D_non_product__596b04.py",
+      "previous_source": "upload/d10_correlated_nonproduct_hcn-checkpoint.ipynb",
+      "unit": "compute_monotonicity_components_analytical",
+      "ast_equal": true,
+      "ast_sha256": "5e1d2a40d1d6cd512a8f3c7b10b5f2c420826e902e680ae3d51905bfbc6c8e76"
+    }
+  ],
+  "scope_note": "No training or checkpoint inference was executed. Hash verification does not independently validate numerical inference."
+}

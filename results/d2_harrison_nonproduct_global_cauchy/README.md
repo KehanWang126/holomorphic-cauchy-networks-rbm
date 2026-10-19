@@ -13,7 +13,7 @@ restricted to a product-form transform.
 - sampled constraints: `64,050,000`;
 - trainable real scalar degrees of freedom: `15,236`;
 - evaluation: Talbot Degree 5 at (t=1,\ldots,5);
-- raw predictions, without clipping;
+- raw predictions preserved; reported finite tails use the paper's [0, 1] clipping convention (no value changes in this run);
 - no ground-truth tail values in training or endpoint selection.
 
 ## Audited result
@@ -36,8 +36,8 @@ GPU environment. The final checkpoint SHA256 is
 26a2c69fd797662ec1cb44c0aea200be25942b6dc5ac518d06bf2620051aef54
 ```
 
-`summary_degree5.json` and `pointwise_degree5.csv` contain the reported
-metrics. `nonseparability_audit.json`, `parameter_budget_audit.json`,
+`summary_degree5.json` and `pointwise_degree5.csv` contain the original raw
+metrics (identical to clipped MRE here). `nonseparability_audit.json`, `parameter_budget_audit.json`,
 `talbot_precision_audit.json`, and `preflight_audit.json` contain the structural
 and numerical checks. The recorded evaluation uses mpmath 1.3.0 at 50 decimal
 digits and passes complex128/float64 precision auditing. Evaluation leaves the

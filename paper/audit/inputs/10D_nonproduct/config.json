@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "variant": "interaction",
+  "seed": 12345,
+  "d": 10,
+  "rho": 0.3,
+  "steps": 25000,
+  "batch": [
+    2048,
+    256,
+    256
+  ],
+  "lr": [
+    5e-05,
+    1e-05,
+    20000
+  ],
+  "model": {
+    "d": 10,
+    "coord_embed_dim": 16,
+    "boundary_embed_dim": 16,
+    "interior_hidden_width": 95,
+    "boundary_hidden_width": 128,
+    "global_hidden_width": 109,
+    "pair_chunk_size": 4096
+  },
+  "domain": [
+    -0.2,
+    5.0,
+    5.0
+  ],
+  "loss_weights": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "grad_clip": 1.0
+}

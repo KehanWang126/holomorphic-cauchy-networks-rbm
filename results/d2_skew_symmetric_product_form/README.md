@@ -12,7 +12,7 @@ skew-symmetric product-form comparison.
 - sampled constraints: `64,050,000`;
 - trainable real scalar degrees of freedom: `15,236`;
 - evaluation: Talbot Degree 5;
-- raw predictions, without clipping;
+- raw predictions preserved; reported finite tails use the paper's [0, 1] clipping convention (no value changes in this run);
 - no ground-truth tail values in training or endpoint selection.
 
 ## Audited result
@@ -31,8 +31,8 @@ SHA256 is
 3010b9805adc5b9fd1eb8bc1b1efb39e19ab4043fb755c628c206ff82cefe928
 ```
 
-`summary_degree5.json` and `pointwise_degree5.csv` contain the reported
-metrics. `run_config.json`, `sample_budget.json`, `preflight_audit.json`, and
+`summary_degree5.json` and `pointwise_degree5.csv` contain the original raw
+metrics (identical to clipped MRE here). `run_config.json`, `sample_budget.json`, `preflight_audit.json`, and
 `environment.json` record the production protocol and numerical checks.
 `manifest.sha256` covers every committed artifact in this directory except
 the manifest itself.

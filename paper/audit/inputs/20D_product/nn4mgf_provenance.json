@@ -1,0 +1,12 @@
+{
+  "status": "archived evaluation; NOT re-evaluated by this notebook",
+  "source_archive": "d20_ablation_cauchy_tanh_nn4mgf_20260818_153041(2).zip",
+  "source_archive_sha256": "d9b315ef6bafad9f285a15575f83502ef9483b73893a8cc24af7290d8cdb78e2",
+  "csv_sha256": "db56a42f656a7e6f6a822d783c866cb103dcec63fda00e8d9a80f22c660bf116",
+  "repository": "https://github.com/zhangz73/NN4MGF",
+  "checkpoint_sha256": "5dfa26e2fe9e44c7726c2a56545be52e1bdac7a6ae14ab057f359f008fede67e",
+  "observed_remote_commit": "1956666902281f6ce4558ca82d8d15fa038f06fb",
+  "local_identity_to_remote_commit": "unavailable/unconfirmed because local snapshot has no .git metadata",
+  "checkpoint_included": false,
+  "note": "Degree-5 and Degree-8 archived released-checkpoint evaluations, not the rounded published table; no matched-budget claim for NN4MGF."
+}

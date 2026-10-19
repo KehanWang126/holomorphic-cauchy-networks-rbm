@@ -14,10 +14,7 @@ The CSV values are preserved from the supplied historical diagnostic archive
 the supplied source weights. Local machine paths have been replaced by relative
 repository paths. MRE columns in the CSVs are fractions unless marked percent.
 
-For Degree 8, MRE over t=1:8 ranges from 5.312% to 8.116%; over t=1:10 it
-ranges from 6.318% to 12.682%. The tail interval has greater variation; these
-results should not be described as identical accuracy across checkpoints.
-Raw invalid predictions remain included. Degree 5 is retained as a diagnostic.
+For Degree 8, clipped MRE over t=1:8 ranges from 5.299% to 8.104% across the six checkpoints; the 100k fixed endpoint has 6.367%. These checkpoints are one training trajectory, not independent seeds, and are not selected by tail accuracy. The CSVs here preserve historical raw diagnostics; canonical clipped trajectory errors and raw invalid counts are in [paper/data/](../../paper/data/). Degree 5 remains diagnostic.
 
 Files include pointwise predictions, per-checkpoint summary, exact-transform
 Talbot reference values, checkpoint hashes, and a file-integrity manifest.

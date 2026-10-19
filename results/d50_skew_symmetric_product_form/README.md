@@ -8,17 +8,16 @@ and never uses a tail probability to select a checkpoint.
 ## Primary result
 
 Talbot Degree 8 is primary. Degree 5 is retained only as a numerical inversion
-diagnostic. Predictions are raw and are not clipped.
+diagnostic. The table reports clipped finite predictions; original raw predictions and CSV summaries remain here for audit, with canonical clipped tables in [paper/data/](../../paper/data/).
 
 | Range | HCN MRE | Exact-transform Talbot floor |
 |---|---:|---:|
-| `t=1:5` | 1.504% | 0.596% |
-| `t=1:8` | 6.373% | 0.469% |
-| `t=1:10` | 8.015% | 0.608% |
+| `t=1:5` | 1.495% | 0.507% |
+| `t=1:8` | 6.367% | 0.414% |
+| `t=1:10` | 8.011% | 0.563% |
 
 The Degree-8 prediction at `t=2` is `1.000477639318975`; this slight overshoot
-is retained and counted as one invalid raw tail. No failed point is removed from
-the MRE.
+is retained and counted as one invalid raw tail. Its clipped value is 1.0 for the reported MRE; no point is removed.
 
 The released checkpoint has SHA-256
 `669c9bc1b2188241e47e78ee5a23bfaa690a86233529b8eef340daf11cf79b0a`.

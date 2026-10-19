@@ -11,8 +11,8 @@ Stage A loads an archived endpoint without changing its bytes. It must:
 1. verify the checkpoint identity and SHA-256 hash before loading;
 2. verify the benchmark, method, seed, model configuration, and endpoint metadata;
 3. recompute every prespecified evaluation point;
-4. report raw predictions without clipping;
-5. retain invalid, negative, above-one, extreme, and nonfinite outcomes;
+4. retain the raw prediction and report a separate clipped value for every finite prediction;
+5. retain and count negative, above-one, extreme, and nonfinite raw outcomes; nonfinite outputs remain invalid;
 6. use no best-checkpoint or best-seed selection; and
 7. confirm that the checkpoint hash is unchanged after evaluation.
 
@@ -56,7 +56,7 @@ A successful 2D run must:
 5. preserve optimizer state when the learning rate changes after step 12,000;
 6. save and report only the prespecified step-15,000 endpoint;
 7. introduce exact tails and the public baseline only after training; and
-8. produce finite, unclipped Degree-5 predictions.
+8. produce Degree-5 raw predictions and compute reported MRE from their clipped values.
 
 The Harrison run additionally verifies its centered full-input global branch and
 nonzero interaction residual.
@@ -75,7 +75,7 @@ A successful 20D run must:
 7. preserve Adam state when the learning rate changes after step 20,000;
 8. save and report only the step-25,000 endpoint;
 9. keep exact tails and baselines outside training and endpoint selection; and
-10. evaluate Degree 8 as primary without clipping or seed exclusion.
+10. evaluate Degree 8 as primary, clipping finite predictions for reported MRE without excluding any seed.
 
 The included new seed-12345 training run used the same frozen protocol and
 replaced its interrupted historical predecessor. Seeds 22345 and 32345 retain
@@ -95,7 +95,7 @@ A successful 30D run must:
 6. report only the prespecified step-50,000 checkpoint;
 7. keep recovery checkpoints, exact tails, and public baselines outside model
    selection; and
-8. evaluate raw Degree-5/6/8 predictions with Degree 8 primary.
+8. preserve raw Degree-5/6/8 predictions, reporting clipped MRE with Degree 8 primary.
 
 The released historical endpoint uses checkpoint schema
 `d30_general_pointmatched50k_v1` and SHA-256
@@ -118,7 +118,7 @@ A successful 50D run must:
 5. use sequential branch backward to control peak memory;
 6. report only the prespecified step-100,000 checkpoint;
 7. keep recovery checkpoints and exact tails outside model selection; and
-8. evaluate raw Degree-5/8 predictions with Degree 8 primary.
+8. preserve raw Degree-5/8 predictions, reporting clipped MRE with Degree 8 primary.
 
 The historical run identifies its endpoint with schema
 `d50_general_pointmatched100k_v1` and variant
@@ -161,10 +161,8 @@ tolerance.
 
 ### Paper summary synchronization
 
-The archived all-three-seed aggregates retain every failure and extreme value.
-The manuscript additionally reports usable-run counts and Degree-8 conditional
-means over common successful seeds 12345 and 32345. Rebuild these separate files
-with `python scripts/build_paper_summaries.py` from the repository root.
-Rebuild the 80 signed error decompositions with
-`python scripts/build_signed_diagnostics.py`. Both scripts use recorded data,
-without retraining, selecting a new endpoint, or clipping predictions.
+The original files under `results/` remain hash-verified raw checkpoint evaluations. They are retained as source evidence, including any out-of-range values and historical raw summaries. The manuscript tables instead use the reproducible, independently hash-checked post-processing under `paper/audit/`. For each finite real tail prediction, it reports `min(1, max(0, raw_prediction))`; nonfinite results are flagged and never silently substituted. Interval MRE is computed per seed and averaged across all prespecified seeds (sample SD with `ddof=1`). The 20D tanh seed 22345 is included, even where its raw prediction is extreme.
+
+From the repository root, run `python paper/audit/audit_results.py` to validate bundled input hashes and reconstruct pointwise, per-run, and aggregate tables. `python scripts/build_paper_summaries.py` additionally compares rebuilt tables against the published `paper/data/` copies. The old `results/d20_activation_ablation/paired_success_summary.csv` and `failure_summary.csv` document an earlier conditional/raw convention and are not manuscript results. Signed raw and clipped decompositions are both in `paper/data/`.
+
+The 10D non-product seed-12345 result uses an unverified pilot simulation reference. Neither this result nor the H100 profile extrapolation is a completed, independently verified 30D non-product reference or a full-run runtime measurement.

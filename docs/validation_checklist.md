@@ -20,7 +20,7 @@
 - [ ] Talbot Degree 5 is the primary 2D protocol.
 - [ ] Harrison passes its full-input nonseparability audit.
 - [ ] Ground truth is absent from training and checkpoint selection.
-- [ ] Raw predictions are not clipped.
+- [ ] Raw predictions remain immutable; reported finite predictions and errors are clipped by the paper audit.
 - [ ] Checkpoint SHA-256 is unchanged by evaluation.
 
 ## 20D main-experiment gate
@@ -36,7 +36,7 @@
 - [ ] Degree 8 is primary and Degree 5 is labeled diagnostic.
 - [ ] All 60 HCN evaluation points are present.
 - [ ] Three-seed aggregation uses sample SD with `ddof=1`.
-- [ ] Invalid predictions are retained and counted.
+- [ ] Invalid raw predictions are retained and counted; finite values are clipped for reported MRE.
 - [ ] The three endpoint hashes match `checkpoint_manifest.json`.
 
 ## 20D activation-ablation gate
@@ -50,8 +50,8 @@
 - [ ] Tanh is evaluated from weights with the audited NumPy complex128 forward
       map and does not call the crashing PyTorch complex-tanh kernel.
 - [ ] All 120 evaluation points are present.
-- [ ] No seed or failed point is excluded from aggregation.
-- [ ] Nonfinite errors make an interval undefined rather than being removed.
+- [ ] All three seeds are included in the clipped aggregation; nonfinite values, if present, remain invalid.
+- [ ] Nonfinite errors make an interval undefined rather than being dropped or replaced.
 - [ ] The NN4MGF reference is labeled archived and not re-evaluated.
 - [ ] All 22 automated checks pass.
 
@@ -88,10 +88,9 @@
 
 ### Paper summary synchronization
 
-The archived all-three-seed aggregates retain every failure and extreme value.
-The manuscript additionally reports usable-run counts and Degree-8 conditional
-means over common successful seeds 12345 and 32345. Rebuild these separate files
-with `python scripts/build_paper_summaries.py` from the repository root.
-Rebuild the 80 signed error decompositions with
-`python scripts/build_signed_diagnostics.py`. Both scripts use recorded data,
-without retraining, selecting a new endpoint, or clipping predictions.
+- [ ] Run `python paper/audit/audit_results.py`; verify every bundled input hash and the regenerated pointwise, per-run, and aggregate files.
+- [ ] Run `python scripts/build_paper_summaries.py`; published `paper/data/` CSVs match the regenerated audit byte for byte.
+- [ ] Report MRE using clipped finite tail probabilities and retain raw predictions plus raw invalid counts.
+- [ ] Include all three prespecified 20D seeds for both Cauchy and tanh; do not reuse historical two-seed conditional summaries.
+- [ ] Treat 10D non-product simulation reference as an unverified pilot.
+- [ ] Keep historical `results/` raw records and their integrity manifests intact, except README metadata updated to identify the archived convention.

@@ -7,13 +7,11 @@ step-25,000 endpoint for seeds 12345, 22345, and 32345.
 
 | Range | Mean MRE (%) | Sample SD (percentage points) | Invalid raw predictions |
 |---|---:|---:|---:|
-| 1:5 | 1.454647 | 1.306387 | 1 |
-| 1:8 | 7.640696 | 1.567737 | 1 |
-| 1:10 | 12.270636 | 3.689535 | 1 |
+| 1:5 | 1.440570 | 1.321982 | 1 |
+| 1:8 | 7.631897 | 1.564846 | 1 |
+| 1:10 | 12.263597 | 3.678306 | 1 |
 
-The invalid count is reported, retained, and included in MRE. No prediction is
-clipped. Degree 5 remains available as a numerical diagnostic and historical
-comparison, but it is not the primary reported protocol.
+The table uses clipped finite predictions for MRE and retains raw invalid counts across all three seeds. Historical CSV summaries and figures in this directory still use the original raw convention; use [paper/data/](../../paper/data/) for canonical clipped pointwise and aggregate tables. Degree 5 is diagnostic.
 
 ## Files
 

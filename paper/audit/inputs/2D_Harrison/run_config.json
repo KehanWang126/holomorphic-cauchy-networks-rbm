@@ -1,0 +1,108 @@
+{
+  "experiment": "d2_harrison_nonproduct_global_cauchy",
+  "seed": 12345,
+  "fixed_primary_endpoint": 15000,
+  "model": {
+    "d": 2,
+    "coord_embed_dim": 16,
+    "boundary_embed_dim": 16,
+    "interior_hidden_width": 95,
+    "boundary_hidden_width": 128,
+    "global_hidden_width": 109,
+    "cauchy_layers_per_scalar_net": 1,
+    "pair_chunk_size": 32768,
+    "boundary_anchor_mode": "hard_rbm_flow_balance",
+    "full_input_global_branch": true,
+    "nonproduct_global_branch": true,
+    "pairwise_interactions": false,
+    "holomorphic_operations_only": true,
+    "dtype": "complex128/float64"
+  },
+  "training": {
+    "steps": 15000,
+    "batch_bar": 3416,
+    "batch_boundary": 427,
+    "batch_mono": 427,
+    "optimizer": "Adam",
+    "lr_initial": 5e-05,
+    "lr_switch_step": 12000,
+    "lr_final": 1e-05,
+    "preserve_adam_state_at_lr_switch": true,
+    "grad_clip": 1.0,
+    "log_every": 100,
+    "sampler_domain": {
+      "laplace_real": [
+        -0.5,
+        5.0
+      ],
+      "imag": [
+        -5.0,
+        5.0
+      ]
+    }
+  },
+  "loss_weights": {
+    "lambda_bar": 1.0,
+    "lambda_bdary": 1.0,
+    "lambda_zero": 0.0,
+    "lambda_mono": 1.0,
+    "lambda_imag": 1.0
+  },
+  "adaptive_bar": {
+    "adaptive_bar_weight": true,
+    "bar_weight_alpha": 0.3,
+    "bar_weight_eps": 1e-12,
+    "bar_weight_min": 0.5,
+    "bar_weight_max": 2.0
+  },
+  "rbm": {
+    "mu": [
+      -1.0,
+      0.0
+    ],
+    "Sigma": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "R": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        -1.0,
+        1.0
+      ]
+    ],
+    "alpha": null
+  },
+  "parameter_counts": {
+    "trainable_tensor_elements": 7784,
+    "trainable_real_scalar_dof": 15236
+  },
+  "sample_budget": {
+    "bar": 51240000,
+    "boundary": 6405000,
+    "mono": 6405000,
+    "total": 64050000
+  },
+  "original_hcn_sample_budget": {
+    "bar": 51200000,
+    "boundary": 6400000,
+    "mono": 6400000,
+    "total": 64000000
+  },
+  "nonproduct_global_branch": true,
+  "ground_truth_used_in_training": false,
+  "ground_truth_used_for_checkpoint_selection": false,
+  "checkpoint_selection": "none; the only saved model is the prespecified step-15000 endpoint",
+  "evaluation_degree": 5,
+  "raw_predictions": true,
+  "prediction_clipping": false
+}

@@ -1,0 +1,129 @@
+{
+  "checkpoint_schema": "d50_general_pointmatched100k_v1",
+  "experiment_variant": "d50_controlled_general_scaling_pure_general",
+  "config": {
+    "seed": 12345,
+    "eval_seed": 1012348,
+    "d": 50,
+    "coord_embed_dim": 16,
+    "boundary_embed_dim": 16,
+    "interior_hidden_width": 128,
+    "boundary_hidden_width": 128,
+    "pair_chunk_size": 32768,
+    "start_step": 0,
+    "steps": 100000,
+    "final_step": 100000,
+    "batch_bar": 512,
+    "batch_bdary": 64,
+    "batch_mono": 64,
+    "eval_batch_bar": 1024,
+    "eval_batch_bdary": 128,
+    "eval_batch_mono": 128,
+    "lambda_bar": 1.0,
+    "lambda_bdary": 1.0,
+    "lambda_zero": 0.0,
+    "lambda_mono": 1.0,
+    "lambda_imag": 1.0,
+    "mono_re_min": -0.5,
+    "mono_re_max": 5.0,
+    "adaptive_bar_weight": true,
+    "bar_weight_alpha": 0.3,
+    "bar_weight_eps": 1e-12,
+    "bar_weight_min": 0.5,
+    "bar_weight_max": 2.0,
+    "lr": 1e-05,
+    "lr_stage1": 5e-05,
+    "lr_stage2": 1e-05,
+    "lr_transition_after_step": 80000,
+    "grad_clip": 1.0,
+    "eval_every_stage1": 1000,
+    "save_every_stage1": 1000,
+    "eval_every_stage2": 2000,
+    "save_every_stage2": 2000,
+    "run_name_prefix": "d50_general_100k_batch512_80k5e-5_20k1e-5"
+  },
+  "learning_rate_schedule": [
+    {
+      "start_step": 1,
+      "end_step": 80000,
+      "learning_rate": 5e-05
+    },
+    {
+      "start_step": 80001,
+      "end_step": 100000,
+      "learning_rate": 1e-05
+    }
+  ],
+  "training_sampler": {
+    "name": "original_general_mixed_BAR",
+    "BAR": {
+      "global_fraction": 0.5,
+      "complex_diagonal_fraction": 0.2,
+      "near_diagonal_fraction": 0.2,
+      "positive_real_diagonal_fraction": 0.1,
+      "real_range": [
+        -0.5,
+        5.0
+      ],
+      "imaginary_range": [
+        -5.0,
+        5.0
+      ]
+    },
+    "boundary": {
+      "source": "sample_training_theta",
+      "real_range": [
+        -0.5,
+        5.0
+      ],
+      "imaginary_range": [
+        -5.0,
+        5.0
+      ]
+    },
+    "monotonicity": {
+      "source": "sample_training_theta projected to real axis",
+      "real_range": [
+        -0.5,
+        5.0
+      ],
+      "imaginary_part": 0.0
+    },
+    "contains_special_inversion_nodes": false,
+    "adaptive_sampling": false
+  },
+  "training_sample_budgets": {
+    "30D": {
+      "high_lr": {
+        "BAR": 40960000,
+        "boundary": 5120000,
+        "mono": 5120000
+      },
+      "low_lr": {
+        "BAR": 10240000,
+        "boundary": 1280000,
+        "mono": 1280000
+      }
+    },
+    "50D": {
+      "high_lr": {
+        "BAR": 40960000,
+        "boundary": 5120000,
+        "mono": 5120000
+      },
+      "low_lr": {
+        "BAR": 10240000,
+        "boundary": 1280000,
+        "mono": 1280000
+      }
+    }
+  },
+  "benchmark": "d50_skew_symmetric_product_form",
+  "checkpoint_selection": "prespecified fixed step 100000 only",
+  "tail_or_ground_truth_used_for_training": false,
+  "tail_or_ground_truth_used_for_selection": false,
+  "raw_predictions": true,
+  "prediction_clipping": false,
+  "training_method_provenance": "same coordinate-shared general training method as the audited 30D notebook",
+  "rbm_construction_provenance": "50D skew-symmetric product-form construction from the supplied historical notebook"
+}
