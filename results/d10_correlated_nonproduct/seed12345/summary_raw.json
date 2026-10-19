@@ -1,0 +1,16 @@
+{
+  "5": {
+    "mre_1_5_percent": 8.23422347133668,
+    "mre_1_8_percent": 28.98761391436166,
+    "invalid_count": 0
+  },
+  "8": {
+    "mre_1_5_percent": 2027.7878526839886,
+    "mre_1_8_percent": 1269.982750416749,
+    "invalid_count": 1
+  },
+  "reference_status": "unverified screenshot pilot; no certified discretization error",
+  "learned_sum_mean": 2.9242988034063018,
+  "known_sum_mean": 2.9289682539682538,
+  "checkpoint_sha256": "32603c1c46c3f6e239807c60a2395535ac9bfa90800f7cd2743ed5e2f480db26"
+}

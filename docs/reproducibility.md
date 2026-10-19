@@ -61,6 +61,10 @@ A successful 2D run must:
 The Harrison run additionally verifies its centered full-input global branch and
 nonzero interaction residual.
 
+### 10D non-product pilot
+
+The released `notebooks/d10_correlated_nonproduct_hcn.ipynb` fixes the interaction model at seed 12345, step 25,000, and a 64M-input budget. The notebook defaults to `smoke` and has no machine-specific path. From the repository root, set `RUN_MODE = "evaluate"` and `RUN_DIR = "results/d10_correlated_nonproduct/seed12345"` to evaluate the included hash-identified endpoint. The saved raw pointwise CSV has the same SHA-256 as `paper/audit/inputs/10D_nonproduct/hcn.csv`. The Degree-8 clipped MREs are reconstructed by the paper audit. The screenshot-derived joint-tail reference has no certified sampling or timestep error; this remains an exploratory pilot rather than a verified non-product accuracy benchmark.
+
 ### 20D main-experiment requirements
 
 A successful 20D run must:
@@ -166,3 +170,5 @@ The original files under `results/` remain hash-verified raw checkpoint evaluati
 From the repository root, run `python paper/audit/audit_results.py` to validate bundled input hashes and reconstruct pointwise, per-run, and aggregate tables. `python scripts/build_paper_summaries.py` additionally compares rebuilt tables against the published `paper/data/` copies. The old `results/d20_activation_ablation/paired_success_summary.csv` and `failure_summary.csv` document an earlier conditional/raw convention and are not manuscript results. Signed raw and clipped decompositions are both in `paper/data/`.
 
 The 10D non-product seed-12345 result uses an unverified pilot simulation reference. Neither this result nor the H100 profile extrapolation is a completed, independently verified 30D non-product reference or a full-run runtime measurement.
+
+The standalone 30D H100 benchmark notebook is `benchmarks/benchmark_30d_same_h100_profile200.ipynb`; it embeds the byte-identical 30D HCN and NN4MGF source files pinned by `benchmarks/sources.json`. Its 10 warm-up plus 200 measured updates per method, GPU model, and allocator peaks are recorded in `benchmarks/measurements/h100_30d_profile200/`. Timed training does not include checkpoint writing or tail inversion.

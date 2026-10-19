@@ -1,0 +1,9 @@
+# 10D correlated non-product HCN pilot
+
+This directory releases **only seed 12345**, variant `interaction`, at the fixed 25,000-update endpoint (batches 2048/256/256, 64 million base inputs). The model uses `R = I`, drift `-1`, and `Sigma_ij = 2 (0.3)^|i-j| / sqrt(i j)`. The exact stationary coordinate marginals are `Exp(i)`. The joint-tail reference used for evaluation is a screenshot-derived, **unverified numerical pilot** without a certified discretization uncertainty; it was not used for training or checkpoint selection.
+
+The [notebook](../../notebooks/d10_correlated_nonproduct_hcn.ipynb) defaults to `smoke` and seed 12345. From the repository root, open it in Jupyter. To recompute this endpoint's raw predictions, set `RUN_MODE = "evaluate"` and `RUN_DIR = "results/d10_correlated_nonproduct/seed12345"`, then Restart Kernel and Run All. Training is substantially more expensive and starts a new run with `RUN_MODE = "train"`.
+
+The archived raw evaluation (`seed12345/pointwise_raw.csv`, `seed12345/summary_raw.json`) includes an out-of-range Degree-8 prediction at `t = 1`. The manuscript reports finite predictions clipped to `[0, 1]`; this yields Degree-8 MRE **1.710%** for thresholds 1:5 and **3.684%** for 1:8. The independent-marginal comparator has 1:8 MRE **19.409%** against the same pilot reference. The canonical clipped pointwise and aggregate tables are under [paper/data/](../../paper/data/); the raw CSV and checkpoint are retained here for audit. The reference is too provisional to treat these values as certified ground truth or as a multi-seed claim.
+
+`seed12345/checkpoint_step25000.pt` has SHA-256 `32603c1c46c3f6e239807c60a2395535ac9bfa90800f7cd2743ed5e2f480db26`. Training log, configuration, preflight, environment, and reference metadata are included. The integrity manifest covers every file in `seed12345/`; the notebook itself is outside that manifest.

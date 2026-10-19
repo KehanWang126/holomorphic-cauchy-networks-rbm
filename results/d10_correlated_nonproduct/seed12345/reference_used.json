@@ -1,0 +1,29 @@
+{
+  "status": "unverified screenshot pilot; no certified discretization error",
+  "values": {
+    "1": {
+      "reference": 0.97204
+    },
+    "2": {
+      "reference": 0.72091
+    },
+    "3": {
+      "reference": 0.4003
+    },
+    "4": {
+      "reference": 0.19124
+    },
+    "5": {
+      "reference": 0.08443
+    },
+    "6": {
+      "reference": 0.03576
+    },
+    "7": {
+      "reference": 0.014645
+    },
+    "8": {
+      "reference": 0.005905
+    }
+  }
+}

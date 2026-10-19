@@ -1,0 +1,21 @@
+{
+  "real_parameters": 23925,
+  "jacobian_max_error": 1.8178852808674398e-10,
+  "gradient_groups": {
+    "coord_embedding": 0.0011495163856647531,
+    "boundary_embedding": 0.516487476612176,
+    "interior_net": 0.0015535494640195775,
+    "boundary_net": 0.017898212458962046,
+    "global_net": 0.002701966640369946,
+    "boundary_global_net": 3.1486545000851915
+  },
+  "smoke_loss": {
+    "bar": 0.4926847938402522,
+    "boundary": 0.16006008047316614,
+    "mono": 20.747706462839382,
+    "imag": 2.137149024774006,
+    "total": 23.537600361926806,
+    "grad_norm": 72562.55794253151,
+    "min_denominator": 0.005896736020328685
+  }
+}

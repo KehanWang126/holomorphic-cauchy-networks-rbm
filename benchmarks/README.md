@@ -107,3 +107,5 @@ python benchmarks/test_runner.py
 ```
 
 The 30D H100 profile measurement reported 0.165113 s/update and 7.805 GiB peak allocated for HCN versus 1.601046 s/update and 77.815 GiB for NN4MGF. This measured early-update throughput ratio is approximately 9.7×. The 58.2× full-schedule estimate is a projection from the measured profile and configured update counts, not a completed 300k-update baseline run. Re-running this harness requires a fresh matched GPU run; CPU smoke tests verify integration only.
+
+The measured run used 10 warm-up and 200 measured updates for each method. Its [standalone 30D H100 notebook](benchmark_30d_same_h100_profile200.ipynb) embeds the hash-pinned HCN and NN4MGF sources for an isolated server run; the [original profile reports and CSV](measurements/h100_30d_profile200/) are committed separately. This notebook performs no tail inversion, so accuracy clipping does not alter the runtime measurement.

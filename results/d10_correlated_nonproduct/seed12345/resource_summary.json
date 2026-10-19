@@ -1,0 +1,7 @@
+{
+  "real_parameters": 23925,
+  "base_inputs": 64000000,
+  "peak_allocated_bytes": 2014597632,
+  "memory_scope": "current session",
+  "training_seconds": 87481.6429224
+}

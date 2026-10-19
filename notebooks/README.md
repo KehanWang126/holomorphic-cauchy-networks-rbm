@@ -8,6 +8,7 @@ experiment:
 - `d2_harrison_nonproduct_global_cauchy.ipynb`: 2D Harrison non-product
   benchmark with a centered full-input HCN branch, seed 12345, fixed step 15,000,
   and Talbot Degree 5 evaluation.
+- `d10_correlated_nonproduct_hcn.ipynb`: 10D correlated non-product exploratory pilot, seed 12345, interaction model, fixed step 25,000. Raw evaluation uses an unverified simulation reference; the clipped paper table is in `../paper/data/`.
 - `d20_skew_symmetric_product_form.ipynb`: 20D coordinate-shared HCN, three
   prespecified seeds, fixed step 25,000, and Degree-5/8 Talbot diagnostics with
   Degree 8 designated as primary.
